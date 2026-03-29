@@ -1,0 +1,2325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>DPSE 1 — Panel de Turno</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&family=Barlow:wght@300;400;500;600&display=swap');
+
+:root {
+--bg: #111418;
+--surface: #1a1f26;
+--surface2: #222830;
+--border: #2e3540;
+--border2: #3a4455;
+--gold: #f0a500;
+--gold-dim: rgba(240,165,0,0.15);
+--blue: #4a9eff;
+--blue-dim: rgba(74,158,255,0.12);
+--green: #3ecf8e;
+--green-dim: rgba(62,207,142,0.12);
+--red: #ff5c5c;
+--red-dim: rgba(255,92,92,0.12);
+--orange: #ff8c42;
+--orange-dim: rgba(255,140,66,0.12);
+--text: #e8edf5;
+--text-dim: #8a95a8;
+--text-dimmer: #4a5568;
+--display: 'Barlow Condensed', sans-serif;
+--body: 'Barlow', sans-serif;
+--radius: 8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+background: var(--bg);
+color: var(--text);
+font-family: var(--body);
+font-size: 14px;
+min-height: 100vh;
+padding-bottom: 30px;
+}
+
+/* ===== LOGIN ===== */
+#screen-login {
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: flex-start;
+padding: 28px 18px 40px;
+}
+.login-logo {
+background: var(--gold); color: #000;
+font-family: var(--display); font-weight: 800; font-size: 22px;
+padding: 8px 20px; border-radius: 6px; letter-spacing: 0.05em;
+margin-bottom: 10px; margin-top: 10px;
+}
+.login-title { font-family: var(--display); font-weight: 700; font-size: 26px; text-align: center; margin-bottom: 4px; }
+.login-sub { font-size: 13px; color: var(--text-dim); margin-bottom: 24px; text-align: center; }
+.login-label {
+font-family: var(--display); font-weight: 700; font-size: 11px;
+letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dimmer);
+margin-bottom: 14px; width: 100%; max-width: 420px;
+}
+
+/* Grupos por equipo */
+.login-equipos { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 420px; }
+.login-equipo-grupo {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; overflow: hidden;
+}
+.login-equipo-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.login-eq-badge {
+  font-family: var(--display); font-weight: 800; font-size: 18px;
+  width: 34px; height: 34px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.eq-badge-A { background: var(--gold-dim); color: var(--gold); border: 2px solid var(--gold); }
+.eq-badge-B { background: var(--blue-dim); color: var(--blue); border: 2px solid var(--blue); }
+.eq-badge-C { background: var(--green-dim); color: var(--green); border: 2px solid var(--green); }
+.eq-badge-D { background: var(--orange-dim); color: var(--orange); border: 2px solid var(--orange); }
+
+.login-eq-turno {
+  flex: 1;
+  font-family: var(--display); font-weight: 700; font-size: 13px;
+}
+.login-eq-turno-badge {
+  font-family: var(--display); font-weight: 700; font-size: 11px;
+  padding: 2px 8px; border-radius: 4px; border: 1px solid;
+}
+
+/* Tarjeta individual de supervisor */
+.supervisor-cards { display: flex; flex-direction: column; }
+.supervisor-card {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+  display: flex; align-items: center; gap: 12px;
+}
+.supervisor-card:last-child { border-bottom: none; }
+.supervisor-card:hover, .supervisor-card:active { background: var(--surface2); }
+.supervisor-card.sv-activo {
+  background: rgba(240,165,0,0.06);
+  border-left: 3px solid var(--gold);
+}
+
+.sv-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display); font-weight: 800; font-size: 15px; flex-shrink: 0;
+}
+.sv-gold  { background: var(--gold-dim);   color: var(--gold);   border: 2px solid var(--gold); }
+.sv-blue  { background: var(--blue-dim);   color: var(--blue);   border: 2px solid var(--blue); }
+.sv-green { background: var(--green-dim);  color: var(--green);  border: 2px solid var(--green); }
+.sv-orange{ background: var(--orange-dim); color: var(--orange); border: 2px solid var(--orange);}
+.sv-red   { background: var(--red-dim);    color: var(--red);    border: 2px solid var(--red); }
+
+.sv-nombre { font-family: var(--display); font-weight: 700; font-size: 16px; }
+.sv-sector { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+.sv-count  { margin-left: auto; font-family: var(--display); font-weight: 800; font-size: 11px;
+  padding: 2px 8px; border-radius: 4px; border: 1px solid; flex-shrink: 0; }
+.sv-count-MA { color: var(--orange); border-color: var(--orange); background: var(--orange-dim); }
+.sv-count-AL { color: var(--blue);   border-color: var(--blue);   background: var(--blue-dim); }
+
+/* ===== APP ===== */
+#screen-app { display: none; }
+
+.header {
+background: var(--surface); border-bottom: 2px solid var(--gold);
+padding: 12px 16px; display: flex; align-items: center; gap: 12px;
+position: sticky; top: 0; z-index: 100;
+}
+.header-badge {
+background: var(--gold); color: #000;
+font-family: var(--display); font-weight: 800; font-size: 13px;
+padding: 4px 10px; border-radius: 4px; flex-shrink: 0;
+}
+.header-title { font-family: var(--display); font-weight: 700; font-size: 17px; }
+.header-sub { font-size: 11px; color: var(--text-dim); margin-top: 1px; }
+.header-right { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+.turno-badge {
+font-family: var(--display); font-weight: 700; font-size: 13px;
+padding: 3px 10px; border-radius: 4px; border: 1px solid;
+}
+.turno-TM { color: var(--gold); border-color: var(--gold); background: var(--gold-dim); }
+.turno-TT { color: var(--orange); border-color: var(--orange); background: var(--orange-dim); }
+.turno-TN { color: var(--blue); border-color: var(--blue); background: var(--blue-dim); }
+.header-fecha { font-size: 10px; color: var(--text-dim); }
+.btn-cambiar { font-size: 10px; color: var(--text-dimmer); cursor: pointer; text-decoration: underline; }
+
+/* TABS */
+.tabs {
+display: flex; background: var(--surface); border-bottom: 1px solid var(--border);
+overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+position: sticky; top: 63px; z-index: 99;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+flex-shrink: 0; padding: 11px 14px;
+font-family: var(--display); font-weight: 600; font-size: 13px;
+letter-spacing: 0.03em; color: var(--text-dim); cursor: pointer;
+border-bottom: 2px solid transparent; transition: all 0.15s; white-space: nowrap;
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+/* CONTENT */
+.content { padding: 14px; display: none; }
+.content.active { display: block; }
+
+/* SECTION */
+.section { margin-bottom: 18px; }
+.section-label {
+font-family: var(--display); font-weight: 700; font-size: 11px;
+letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dimmer);
+margin-bottom: 8px;
+}
+
+/* TURNO SELECTOR */
+.turno-selector { display: flex; gap: 8px; margin-bottom: 14px; }
+
+/* STATS */
+.stats-row { display: flex; gap: 8px; margin-bottom: 14px; }
+.stat-pill {
+flex: 1; background: var(--surface); border: 1px solid var(--border);
+border-radius: var(--radius); padding: 10px 6px; text-align: center;
+}
+.stat-pill-num { font-family: var(--display); font-weight: 800; font-size: 22px; line-height: 1; }
+.stat-pill-label { font-size: 10px; color: var(--text-dim); margin-top: 2px; letter-spacing: 0.04em; text-transform: uppercase; }
+.num-green { color: var(--green); }
+.num-red { color: var(--red); }
+.num-gold { color: var(--gold); }
+.num-blue { color: var(--blue); }
+.num-dim { color: var(--text-dim); }
+
+/* CARD */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 10px; }
+.card-header {
+padding: 9px 14px; background: var(--surface2); border-bottom: 1px solid var(--border);
+font-family: var(--display); font-weight: 700; font-size: 12px;
+letter-spacing: 0.06em; color: var(--text-dim); text-transform: uppercase;
+display: flex; align-items: center; gap: 8px;
+}
+
+/* ===== MÁQUINA ROW ===== */
+.maquina-row {
+display: grid;
+grid-template-columns: auto 1fr auto;
+gap: 0;
+border-bottom: 1px solid var(--border);
+align-items: stretch;
+min-height: 58px;
+}
+.maquina-row:last-child { border-bottom: none; }
+
+.maq-icono {
+width: 44px;
+background: var(--surface2);
+border-right: 1px solid var(--border);
+display: flex; align-items: center; justify-content: center;
+font-size: 18px;
+flex-shrink: 0;
+}
+
+.maq-body {
+padding: 10px 12px;
+display: flex;
+flex-direction: column;
+justify-content: center;
+gap: 6px;
+}
+
+.maq-nombre {
+font-family: var(--display);
+font-weight: 700;
+font-size: 15px;
+letter-spacing: 0.02em;
+color: var(--text);
+line-height: 1;
+}
+
+.maq-operario-select {
+background: var(--surface2);
+border: 1px solid var(--border2);
+border-radius: 4px;
+color: var(--text);
+font-size: 12px;
+padding: 5px 8px;
+font-family: var(--body);
+cursor: pointer;
+width: 100%;
+max-width: 220px;
+transition: border-color 0.15s;
+}
+.maq-operario-select:focus { outline: none; border-color: var(--gold); }
+.maq-operario-select.asignado { border-color: var(--green); color: var(--green); }
+.maq-operario-select.prestado { border-color: var(--green); color: var(--green); }
+
+.maq-estado {
+width: 12px;
+margin: 0 10px;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.estado-dot {
+width: 8px; height: 8px; border-radius: 50%;
+}
+.dot-on { background: var(--green); }
+.dot-off { background: var(--border2); }
+
+/* FRANCO / SIN ASIGNAR */
+.sin-asignar-section {
+background: var(--surface2);
+border: 1px solid var(--border);
+border-radius: var(--radius);
+margin-bottom: 10px;
+overflow: hidden;
+}
+.sin-asignar-header {
+padding: 8px 14px;
+font-family: var(--display);
+font-weight: 700;
+font-size: 11px;
+letter-spacing: 0.08em;
+text-transform: uppercase;
+color: var(--text-dimmer);
+border-bottom: 1px solid var(--border);
+}
+.sin-asignar-lista {
+display: flex;
+flex-wrap: wrap;
+gap: 6px;
+padding: 10px 14px;
+min-height: 42px;
+}
+.op-chip {
+font-size: 12px;
+font-weight: 500;
+background: var(--surface);
+border: 1px solid var(--border2);
+border-radius: 20px;
+padding: 4px 10px;
+color: var(--text-dim);
+}
+.op-chip.ausente {
+background: var(--red-dim);
+border-color: var(--red);
+color: var(--red);
+}
+.op-chip.franco {
+background: var(--surface2);
+border-color: var(--border);
+color: var(--text-dimmer);
+text-decoration: line-through;
+}
+.op-chip.vacaciones {
+background: var(--blue-dim);
+border-color: var(--blue);
+color: var(--blue);
+}
+.op-chip.capacitacion {
+background: var(--gold-dim);
+border-color: var(--gold);
+color: var(--gold);
+}
+.op-chip.brigada {
+background: var(--orange-dim);
+border-color: var(--orange);
+color: var(--orange);
+}
+
+/* AUSENCIAS */
+.ausencia-row {
+display: flex; align-items: center; gap: 10px;
+padding: 9px 14px; border-bottom: 1px solid var(--border);
+}
+.ausencia-row:last-child { border-bottom: none; }
+.aus-nombre { flex: 1; font-size: 13px; font-weight: 500; }
+.aus-tipo-select {
+background: var(--surface2); border: 1px solid var(--border2);
+border-radius: 4px; color: var(--text); font-size: 11px;
+padding: 4px 6px; cursor: pointer; font-family: var(--body);
+}
+.aus-toggle {
+width: 28px; height: 28px; border-radius: 50%;
+border: 1px solid var(--border2); background: var(--surface2);
+display: flex; align-items: center; justify-content: center;
+cursor: pointer; font-size: 14px; transition: all 0.15s; flex-shrink: 0;
+}
+.aus-toggle.ausente { background: var(--red-dim); border-color: var(--red); }
+.aus-toggle.franco { background: var(--surface2); border-color: var(--text-dimmer); }
+
+/* NOVEDADES */
+.novedad-item {
+display: flex; gap: 10px; padding: 11px 14px;
+border-bottom: 1px solid var(--border); align-items: flex-start;
+}
+.novedad-item:last-child { border-bottom: none; }
+.novedad-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+.dot-red { background: var(--red); }
+.dot-orange { background: var(--orange); }
+.dot-blue { background: var(--blue); }
+.dot-green { background: var(--green); }
+.novedad-body { flex: 1; }
+.novedad-tag { font-family: var(--display); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dimmer); margin-bottom: 2px; }
+.novedad-text { font-size: 13px; color: var(--text); line-height: 1.5; }
+.novedad-meta { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+.novedad-del { color: var(--red); font-size: 20px; cursor: pointer; line-height: 1; flex-shrink: 0; padding: 0 2px; }
+
+/* OBLIGACIONES */
+.oblig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.oblig-card {
+background: var(--surface); border: 1px solid var(--border);
+border-radius: var(--radius); padding: 12px; text-align: center;
+position: relative; overflow: hidden;
+}
+.oblig-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; }
+.oblig-ok::after { background: var(--green); }
+.oblig-warn::after { background: var(--orange); }
+.oblig-danger::after { background: var(--red); }
+.oblig-num { font-family: var(--display); font-weight: 800; font-size: 32px; line-height: 1; margin-bottom: 2px; }
+.oblig-ok .oblig-num { color: var(--green); }
+.oblig-warn .oblig-num { color: var(--orange); }
+.oblig-danger .oblig-num { color: var(--red); }
+.oblig-label { font-family: var(--display); font-weight: 600; font-size: 11px; letter-spacing: 0.05em; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px; }
+.oblig-prog { font-size: 10px; color: var(--text-dimmer); }
+.oblig-bar { height: 3px; background: var(--surface2); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+.oblig-fill { height: 100%; border-radius: 2px; transition: width 0.5s; }
+.oblig-ok .oblig-fill { background: var(--green); }
+.oblig-warn .oblig-fill { background: var(--orange); }
+.oblig-danger .oblig-fill { background: var(--red); }
+
+.counter-row {
+display: flex; align-items: center; justify-content: space-between;
+padding: 11px 14px; border-bottom: 1px solid var(--border);
+}
+.counter-row:last-child { border-bottom: none; }
+.counter-controls { display: flex; align-items: center; gap: 14px; }
+.counter-btn {
+width: 30px; height: 30px; border-radius: 50%;
+border: 1px solid var(--border2); background: var(--surface2);
+color: var(--text); font-size: 18px; cursor: pointer;
+display: flex; align-items: center; justify-content: center;
+transition: all 0.15s;
+}
+.counter-btn:hover { border-color: var(--gold); color: var(--gold); }
+.counter-val { font-family: var(--display); font-weight: 800; font-size: 20px; min-width: 28px; text-align: center; }
+
+/* RECORDATORIOS */
+.alert-card {
+background: var(--red-dim); border: 1px solid var(--red);
+border-left: 4px solid var(--red); border-radius: var(--radius);
+padding: 12px 14px; margin-bottom: 12px;
+}
+.alert-title { font-family: var(--display); font-weight: 800; font-size: 14px; color: var(--red); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.alert-list { list-style: none; }
+.alert-list li { font-size: 13px; color: var(--text); padding: 4px 0; border-bottom: 1px solid rgba(255,92,92,0.15); display: flex; gap: 8px; align-items: flex-start; }
+.alert-list li:last-child { border-bottom: none; }
+.alert-list li::before { content: '→'; color: var(--red); font-weight: 700; flex-shrink: 0; }
+
+.rec-item { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-bottom: 1px solid var(--border); }
+.rec-item:last-child { border-bottom: none; }
+.rec-check {
+width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border2);
+background: transparent; cursor: pointer; flex-shrink: 0;
+display: flex; align-items: center; justify-content: center;
+transition: all 0.15s; font-size: 12px;
+}
+.rec-check.done { background: var(--green); border-color: var(--green); }
+.rec-body { flex: 1; }
+.rec-title { font-size: 13px; font-weight: 500; color: var(--text); }
+.rec-title.done { text-decoration: line-through; color: var(--text-dimmer); }
+.rec-sub { font-size: 11px; color: var(--text-dim); margin-top: 1px; }
+.rec-urgency { font-family: var(--display); font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px; flex-shrink: 0; }
+.urgency-alta { background: var(--red-dim); color: var(--red); border: 1px solid var(--red); }
+.urgency-media { background: var(--orange-dim); color: var(--orange); border: 1px solid var(--orange); }
+.urgency-baja { background: var(--blue-dim); color: var(--blue); border: 1px solid var(--blue); }
+
+/* BTN */
+.btn {
+font-family: var(--display); font-weight: 700; font-size: 13px;
+letter-spacing: 0.04em; padding: 10px 16px; border-radius: var(--radius);
+border: none; cursor: pointer; transition: all 0.15s;
+display: inline-flex; align-items: center; gap: 6px;
+}
+.btn-gold { background: var(--gold); color: #000; }
+.btn-gold:hover { background: #ffb520; }
+.btn-outline { background: transparent; color: var(--text-dim); border: 1px solid var(--border2); }
+.btn-outline:hover { border-color: var(--text-dim); color: var(--text); }
+.btn-red { background: var(--red-dim); color: var(--red); border: 1px solid var(--red); }
+.btn-full { width: 100%; justify-content: center; }
+
+/* INPUTS */
+.input-area {
+background: var(--surface2); border: 1px solid var(--border2);
+border-radius: var(--radius); color: var(--text); font-family: var(--body);
+font-size: 14px; padding: 10px 12px; width: 100%; resize: none; min-height: 75px; margin-bottom: 8px;
+}
+.input-area:focus { outline: none; border-color: var(--gold); }
+.input-area::placeholder { color: var(--text-dimmer); }
+.input-select {
+background: var(--surface2); border: 1px solid var(--border2);
+border-radius: var(--radius); color: var(--text); font-family: var(--body);
+font-size: 14px; padding: 9px 12px; width: 100%; margin-bottom: 8px; cursor: pointer;
+}
+.input-select:focus { outline: none; border-color: var(--gold); }
+.input-field {
+background: var(--surface2); border: 1px solid var(--border2);
+border-radius: var(--radius); color: var(--text); font-family: var(--body);
+font-size: 14px; padding: 9px 12px; width: 100%; margin-bottom: 8px;
+}
+.input-field:focus { outline: none; border-color: var(--gold); }
+
+/* MODAL */
+.modal-overlay {
+position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+z-index: 500; display: none; align-items: flex-end;
+justify-content: center; padding: 16px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+background: var(--surface); border: 1px solid var(--border2);
+border-radius: 14px; width: 100%; max-width: 480px;
+padding: 18px; animation: slideUp 0.2s ease;
+}
+@keyframes slideUp { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.modal-title {
+font-family: var(--display); font-weight: 800; font-size: 17px;
+margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between;
+}
+.modal-close { cursor: pointer; color: var(--text-dim); font-size: 22px; line-height: 1; }
+
+.sep { height: 1px; background: var(--border); margin: 14px 0; }
+
+/* CALENDARIO */
+.cal-grid {
+display: grid;
+grid-template-columns: repeat(7, 1fr);
+gap: 2px;
+margin-bottom: 12px;
+}
+.cal-day-header {
+text-align: center;
+font-family: var(--display);
+font-weight: 700;
+font-size: 11px;
+color: var(--text-dimmer);
+padding: 4px 0;
+letter-spacing: 0.05em;
+}
+.cal-day {
+background: var(--surface);
+border: 1px solid var(--border);
+border-radius: 4px;
+padding: 4px;
+min-height: 38px;
+cursor: pointer;
+transition: border-color 0.15s;
+position: relative;
+}
+.cal-day:hover { border-color: var(--gold); }
+.cal-day.hoy { border-color: var(--gold); background: var(--gold-dim); }
+.cal-day.vacio { background: transparent; border-color: transparent; cursor: default; }
+.cal-day-num {
+font-family: var(--display);
+font-weight: 700;
+font-size: 13px;
+color: var(--text-dim);
+line-height: 1;
+}
+.cal-day.hoy .cal-day-num { color: var(--gold); }
+.cal-dot {
+width: 5px; height: 5px;
+border-radius: 50%;
+margin-top: 3px;
+}
+
+/* REUNION CARD */
+.reunion-card {
+padding: 12px 14px;
+border-bottom: 1px solid var(--border);
+}
+.reunion-card:last-child { border-bottom: none; }
+.reunion-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 8px;
+}
+.reunion-num {
+font-family: var(--display);
+font-weight: 800;
+font-size: 14px;
+color: var(--gold);
+}
+.reunion-fecha {
+font-size: 11px;
+color: var(--text-dimmer);
+font-family: var(--display);
+}
+.reunion-del { color: var(--red); cursor: pointer; font-size: 18px; line-height: 1; }
+.reunion-field {
+margin-bottom: 6px;
+}
+.reunion-field-label {
+font-family: var(--display);
+font-size: 10px;
+font-weight: 700;
+letter-spacing: 0.08em;
+text-transform: uppercase;
+color: var(--text-dimmer);
+margin-bottom: 2px;
+}
+.reunion-field-val {
+font-size: 13px;
+color: var(--text);
+line-height: 1.5;
+}
+
+/* EVENTO CHIP */
+.evt-chip {
+display: inline-block;
+font-size: 10px;
+font-family: var(--display);
+font-weight: 700;
+padding: 1px 6px;
+border-radius: 10px;
+border: 1px solid;
+margin-top: 2px;
+}
+.evt-subcomite { color: var(--gold); border-color: var(--gold); background: var(--gold-dim); }
+.evt-reunion   { color: var(--green); border-color: var(--green); background: var(--green-dim); }
+.evt-capacitacion { color: var(--blue); border-color: var(--blue); background: var(--blue-dim); }
+.evt-vencimiento { color: var(--red); border-color: var(--red); background: var(--red-dim); }
+.evt-otro { color: var(--text-dim); border-color: var(--border2); background: var(--surface2); }
+
+.evento-row {
+display: flex;
+align-items: flex-start;
+gap: 10px;
+padding: 10px 14px;
+border-bottom: 1px solid var(--border);
+}
+.evento-row:last-child { border-bottom: none; }
+.evento-fecha-badge {
+font-family: var(--display);
+font-weight: 800;
+font-size: 20px;
+color: var(--gold);
+min-width: 28px;
+text-align: center;
+line-height: 1;
+}
+.evento-mes-small {
+font-family: var(--display);
+font-size: 10px;
+color: var(--text-dimmer);
+text-align: center;
+text-transform: uppercase;
+}
+.evento-body { flex: 1; }
+.evento-titulo { font-size: 13px; font-weight: 600; color: var(--text); }
+.evento-detalle { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+/* SUBTABS */
+.subtabs { display: flex; gap: 6px; margin-bottom: 12px; }
+.subtab {
+flex: 1; text-align: center; padding: 8px; border-radius: var(--radius);
+font-family: var(--display); font-weight: 700; font-size: 12px;
+cursor: pointer; border: 1px solid var(--border2); color: var(--text-dim); transition: all 0.15s;
+}
+.subtab.active { background: var(--gold); color: #000; border-color: var(--gold); }
+
+/* ===== MÓDULO EQUIPOS ===== */
+.equipo-selector {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.equipo-btn {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 6px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 22px;
+  color: var(--text-dim);
+}
+.equipo-btn .eq-turno-badge {
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  margin-top: 3px;
+  text-transform: uppercase;
+}
+.equipo-btn.eq-active-A { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+.equipo-btn.eq-active-B { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
+.equipo-btn.eq-active-C { border-color: var(--green); color: var(--green); background: var(--green-dim); }
+.equipo-btn.eq-active-D { border-color: var(--orange); color: var(--orange); background: var(--orange-dim); }
+
+.eq-info-header {
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.eq-supervisor-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 10px;
+  border: 1px solid;
+}
+.eq-sv-C { color: var(--green); border-color: var(--green); background: var(--green-dim); }
+.eq-sv-A { color: var(--gold); border-color: var(--gold); background: var(--gold-dim); }
+.eq-sv-B { color: var(--blue); border-color: var(--blue); background: var(--blue-dim); }
+.eq-sv-D { color: var(--orange); border-color: var(--orange); background: var(--orange-dim); }
+
+.eq-area-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.eq-operario-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  min-height: 40px;
+}
+.eq-operario-row:last-child { border-bottom: none; }
+.eq-op-num {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--text-dimmer);
+  min-width: 20px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.eq-op-nombre {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+.eq-op-nombre.vacio {
+  color: var(--text-dimmer);
+  font-style: italic;
+}
+.eq-op-input {
+  flex: 1;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 13px;
+  padding: 5px 9px;
+  font-family: var(--body);
+  transition: border-color 0.15s;
+}
+.eq-op-input:focus { outline: none; border-color: var(--gold); }
+.eq-op-input::placeholder { color: var(--text-dimmer); }
+.eq-slots-input {
+  width: 50px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 13px;
+  padding: 4px 6px;
+  font-family: var(--display);
+  font-weight: 700;
+  text-align: center;
+}
+.eq-slots-input:focus { outline: none; border-color: var(--gold); }
+
+.eq-modoedicion-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--gold-dim);
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  animation: pulso 1.5s infinite;
+}
+@keyframes pulso { 0%,100%{opacity:1} 50%{opacity:.6} }
+
+.eq-add-row-btn {
+  width: 100%;
+  padding: 9px;
+  background: transparent;
+  border: none;
+  border-top: 1px solid var(--border);
+  color: var(--text-dimmer);
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  transition: color 0.15s, background 0.15s;
+}
+.eq-add-row-btn:hover { color: var(--gold); background: var(--gold-dim); }
+
+.eq-del-btn {
+  color: var(--red);
+  font-size: 18px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 3px;
+  flex-shrink: 0;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+.eq-del-btn:hover { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div id="screen-login">
+  <div class="login-logo">DPSE 1</div>
+  <div class="login-title">Panel de Turno</div>
+  <div class="login-sub">Seleccioná tu perfil para continuar</div>
+  <div class="login-label">¿Quién sos?</div>
+
+  <div class="login-equipos" id="login-equipos-container">
+
+    <!-- EQUIPO A -->
+    <div class="login-equipo-grupo">
+      <div class="login-equipo-header">
+        <div class="login-eq-badge eq-badge-A">A</div>
+        <div class="login-eq-turno">
+          <span style="font-size:11px;color:var(--text-dimmer);display:block;letter-spacing:0.06em">EQUIPO A</span>
+          <span id="login-turno-A" style="font-size:12px;color:var(--text-dim)">—</span>
+        </div>
+      </div>
+      <div class="supervisor-cards">
+        <div class="supervisor-card" onclick="entrar('merlo')" id="card-merlo">
+          <div class="sv-avatar sv-gold">DM</div>
+          <div>
+            <div class="sv-nombre">Merlo Damián</div>
+            <div class="sv-sector">Molde Abierto · DPSE 1</div>
+          </div>
+          <div class="sv-count sv-count-MA">MA</div>
+        </div>
+        <div class="supervisor-card" onclick="entrar('zuniga')" id="card-zuniga">
+          <div class="sv-avatar sv-blue">CZ</div>
+          <div>
+            <div class="sv-nombre">Zúñiga Carlos</div>
+            <div class="sv-sector">Alambron · DPSE 1</div>
+          </div>
+          <div class="sv-count sv-count-AL">AL</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EQUIPO B -->
+    <div class="login-equipo-grupo">
+      <div class="login-equipo-header">
+        <div class="login-eq-badge eq-badge-B">B</div>
+        <div class="login-eq-turno">
+          <span style="font-size:11px;color:var(--text-dimmer);display:block;letter-spacing:0.06em">EQUIPO B</span>
+          <span id="login-turno-B" style="font-size:12px;color:var(--text-dim)">—</span>
+        </div>
+      </div>
+      <div class="supervisor-cards">
+        <div class="supervisor-card" onclick="entrar('postigo')" id="card-postigo">
+          <div class="sv-avatar sv-blue">AP</div>
+          <div>
+            <div class="sv-nombre">Postigo Antonio</div>
+            <div class="sv-sector">Molde Abierto · DPSE 1</div>
+          </div>
+          <div class="sv-count sv-count-MA">MA</div>
+        </div>
+        <div class="supervisor-card" onclick="entrar('paz')" id="card-paz">
+          <div class="sv-avatar sv-blue">JP</div>
+          <div>
+            <div class="sv-nombre">Paz Julio</div>
+            <div class="sv-sector">Alambron · DPSE 1</div>
+          </div>
+          <div class="sv-count sv-count-AL">AL</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EQUIPO C -->
+    <div class="login-equipo-grupo">
+      <div class="login-equipo-header">
+        <div class="login-eq-badge eq-badge-C">C</div>
+        <div class="login-eq-turno">
+          <span style="font-size:11px;color:var(--text-dimmer);display:block;letter-spacing:0.06em">EQUIPO C</span>
+          <span id="login-turno-C" style="font-size:12px;color:var(--text-dim)">—</span>
+        </div>
+      </div>
+      <div class="supervisor-cards">
+        <div class="supervisor-card" onclick="entrar('paves')" id="card-paves">
+          <div class="sv-avatar sv-green">GP</div>
+          <div>
+            <div class="sv-nombre">Paves Gabriel</div>
+            <div class="sv-sector">Molde Abierto · DPSE 1</div>
+          </div>
+          <div class="sv-count sv-count-MA">MA</div>
+        </div>
+        <div class="supervisor-card" onclick="entrar('bertalot')" id="card-bertalot">
+          <div class="sv-avatar sv-green">AB</div>
+          <div>
+            <div class="sv-nombre">Bertalot Alejandro</div>
+            <div class="sv-sector">Alambron · DPSE 1</div>
+          </div>
+          <div class="sv-count sv-count-AL">AL</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EQUIPO D -->
+    <div class="login-equipo-grupo">
+      <div class="login-equipo-header">
+        <div class="login-eq-badge eq-badge-D">D</div>
+        <div class="login-eq-turno">
+          <span style="font-size:11px;color:var(--text-dimmer);display:block;letter-spacing:0.06em">EQUIPO D</span>
+          <span id="login-turno-D" style="font-size:12px;color:var(--text-dim)">—</span>
+        </div>
+      </div>
+      <div class="supervisor-cards">
+        <div class="supervisor-card" onclick="entrar('boubee')" id="card-boubee">
+          <div class="sv-avatar sv-orange">MB</div>
+          <div>
+            <div class="sv-nombre">Boubee Marcelo</div>
+            <div class="sv-sector">Molde Abierto · DPSE 1</div>
+          </div>
+          <div class="sv-count sv-count-MA">MA</div>
+        </div>
+        <div class="supervisor-card" onclick="entrar('hernandez')" id="card-hernandez">
+          <div class="sv-avatar sv-orange">NH</div>
+          <div>
+            <div class="sv-nombre">Hernández Néstor</div>
+            <div class="sv-sector">Alambron · DPSE 1</div>
+          </div>
+          <div class="sv-count sv-count-AL">AL</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== APP ===== -->
+<div id="screen-app">
+
+  <div class="header">
+    <div class="header-badge">DPSE 1</div>
+    <div>
+      <div class="header-title" id="hdr-nombre">—</div>
+      <div class="header-sub" id="hdr-sector">—</div>
+    </div>
+    <div class="header-right">
+      <div class="turno-badge turno-TM" id="turno-display">TM</div>
+      <div class="header-fecha" id="fecha-display"></div>
+      <div class="btn-cambiar" onclick="cambiarPerfil()">cambiar perfil</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('dotacion',this)">🏭 Dotación</div>
+    <div class="tab" onclick="switchTab('ausencias',this)">📋 Ausencias</div>
+    <div class="tab" onclick="switchTab('novedades',this)">💬 Novedades</div>
+    <div class="tab" onclick="switchTab('obligaciones',this)">✅ Obligaciones</div>
+    <div class="tab" onclick="switchTab('recordatorios',this)">⚠️ No Olvidar</div>
+    <div class="tab" onclick="switchTab('reuniones',this)">🤝 Reuniones</div>
+    <div class="tab" onclick="switchTab('calendario',this)">📅 Calendario</div>
+    <div class="tab" onclick="switchTab('equipos',this)">👥 Equipos</div>
+    <div class="tab" onclick="switchTab('metal',this)">🔩 Metal</div>
+    <div class="tab" onclick="switchTab('exportar',this)">📤 Exportar</div>
+  </div>
+
+  <!-- DOTACIÓN -->
+  <div class="content active" id="tab-dotacion">
+    <div class="section">
+      <div class="section-label">Turno activo</div>
+      <div class="turno-selector">
+        <button class="btn btn-gold" id="btn-TM" onclick="setTurno('TM')">☀️ Mañana</button>
+        <button class="btn btn-outline" id="btn-TT" onclick="setTurno('TT')">🌅 Tarde</button>
+        <button class="btn btn-outline" id="btn-TN" onclick="setTurno('TN')">🌙 Noche</button>
+      </div>
+    </div>
+    <div class="stats-row" id="stats-row"></div>
+    <div class="section">
+      <div class="section-label">Asignación de máquinas</div>
+      <div class="card" id="maquinas-lista"></div>
+    </div>
+    <div class="sin-asignar-section">
+      <div class="sin-asignar-header">Sin asignar / Soporte</div>
+      <div class="sin-asignar-lista" id="sin-asignar-lista"></div>
+    </div>
+    <div style="margin-top:8px;display:flex;gap:8px">
+      <button class="btn btn-outline btn-full" onclick="limpiarDotacion()">↺ Limpiar turno</button>
+      <button class="btn btn-gold btn-full" onclick="exportarDotacion()">📤 WhatsApp</button>
+    </div>
+  </div>
+
+  <!-- AUSENCIAS -->
+  <div class="content" id="tab-ausencias">
+    <div class="section">
+      <div class="section-label">Estado de la dotación</div>
+      <div class="card" id="ausencias-lista"></div>
+    </div>
+  </div>
+
+  <!-- NOVEDADES -->
+  <div class="content" id="tab-novedades">
+    <div class="section">
+      <div class="section-label">Novedades del turno anterior</div>
+      <div class="card" id="lista-novedades">
+        <div style="padding:20px;text-align:center;color:var(--text-dimmer);font-size:13px">Sin novedades registradas</div>
+      </div>
+      <button class="btn btn-gold btn-full" onclick="openModal('modal-novedad')" style="margin-top:8px">+ Agregar novedad</button>
+    </div>
+    <div class="sep"></div>
+    <div class="section">
+      <div class="section-label">Pasar al turno siguiente</div>
+      <button class="btn btn-outline btn-full" onclick="exportarNovedades()">📤 Copiar para WhatsApp</button>
+    </div>
+  </div>
+
+  <!-- OBLIGACIONES -->
+  <div class="content" id="tab-obligaciones">
+    <div class="section">
+      <div class="section-label">Estado del mes — <span id="mes-label"></span></div>
+      <div class="oblig-grid" id="oblig-grid"></div>
+    </div>
+    <div class="sep"></div>
+    <div class="section">
+      <div class="section-label">Ajustar contadores</div>
+      <div class="card" id="oblig-controles"></div>
+    </div>
+    <div style="margin-top:10px">
+      <button class="btn btn-red btn-full" onclick="resetObligaciones()">↺ Reiniciar mes</button>
+    </div>
+  </div>
+
+  <!-- RECORDATORIOS -->
+  <div class="content" id="tab-recordatorios">
+    <div class="alert-card">
+      <div class="alert-title">⚠️ NO OLVIDAR</div>
+      <ul class="alert-list">
+        <li>Cargar vacaciones pendientes en SAP antes de que venzan</li>
+        <li>Revisar capacitaciones vencidas o próximas a vencer</li>
+        <li>Cerrar mensajes SAP antes del corte de quincena</li>
+        <li>Registrar OPTs e ISECs en SEGU APP antes de fin de mes</li>
+      </ul>
+    </div>
+    <div class="section">
+      <div class="section-label">Mis pendientes</div>
+      <div class="card" id="lista-recordatorios"></div>
+      <button class="btn btn-gold btn-full" onclick="openModal('modal-recordatorio')" style="margin-top:8px">+ Agregar pendiente</button>
+    </div>
+  </div>
+
+  <!-- REUNIONES -->
+  <div class="content" id="tab-reuniones">
+    <div class="section">
+      <div class="section-label">Registro de reuniones</div>
+      <div class="card" id="lista-reuniones">
+        <div style="padding:20px;text-align:center;color:var(--text-dimmer);font-size:13px">Sin reuniones registradas</div>
+      </div>
+      <button class="btn btn-gold btn-full" onclick="openModal('modal-reunion')" style="margin-top:8px">+ Nueva reunión</button>
+    </div>
+  </div>
+
+  <!-- CALENDARIO -->
+  <div class="content" id="tab-calendario">
+    <div class="section">
+      <div class="section-label" id="cal-mes-label"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <button class="btn btn-outline" onclick="calNavegar(-1)">‹ Anterior</button>
+        <span style="font-family:var(--display);font-weight:700;font-size:16px;color:var(--text)" id="cal-titulo"></span>
+        <button class="btn btn-outline" onclick="calNavegar(1)">Siguiente ›</button>
+      </div>
+      <div id="cal-grid"></div>
+    </div>
+    <div class="section">
+      <div class="section-label">Eventos del mes</div>
+      <div class="card" id="cal-eventos-lista">
+        <div style="padding:16px;text-align:center;color:var(--text-dimmer);font-size:13px">Sin eventos</div>
+      </div>
+      <button class="btn btn-gold btn-full" onclick="openModal('modal-evento')" style="margin-top:8px">+ Agregar evento</button>
+    </div>
+  </div>
+
+  <!-- ===== EQUIPOS A/B/C/D ===== -->
+  <div class="content" id="tab-equipos">
+    <div class="section">
+      <div class="section-label">Rotación y dotación por equipo</div>
+
+      <!-- Selector de equipo -->
+      <div class="equipo-selector">
+        <div class="equipo-btn eq-active-A" id="eqbtn-A" onclick="selectEquipo('A')">
+          A<span class="eq-turno-badge" id="eq-turno-A">—</span>
+        </div>
+        <div class="equipo-btn" id="eqbtn-B" onclick="selectEquipo('B')">
+          B<span class="eq-turno-badge" id="eq-turno-B">—</span>
+        </div>
+        <div class="equipo-btn" id="eqbtn-C" onclick="selectEquipo('C')">
+          C<span class="eq-turno-badge" id="eq-turno-C">—</span>
+        </div>
+        <div class="equipo-btn" id="eqbtn-D" onclick="selectEquipo('D')">
+          D<span class="eq-turno-badge" id="eq-turno-D">—</span>
+        </div>
+      </div>
+
+      <!-- Card info del equipo -->
+      <div class="card" id="eq-info-card" style="margin-bottom:10px">
+        <div class="eq-info-header">
+          <div>
+            <div id="eq-supervisor-display" style="margin-bottom:4px;font-family:var(--display);font-weight:700;font-size:16px"></div>
+            <div id="eq-sector-display" style="font-size:12px;color:var(--text-dim)"></div>
+          </div>
+          <div id="eq-turno-hoy" style="font-family:var(--display);font-weight:800;font-size:28px;line-height:1;text-align:center">
+            <div style="font-size:10px;color:var(--text-dimmer);font-weight:600;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:2px">HOY</div>
+            <span id="eq-turno-hoy-icono">—</span>
+            <div id="eq-turno-hoy-label" style="font-size:11px;font-weight:700;margin-top:1px"></div>
+          </div>
+        </div>
+        <!-- Resumen de todos los equipos hoy -->
+        <div style="padding:8px 14px;background:var(--bg);border-top:1px solid var(--border);display:flex;gap:10px;flex-wrap:wrap" id="eq-todos-hoy"></div>
+      </div>
+
+      <!-- Modo edición badge -->
+      <div id="eq-edicion-badge" style="display:none;margin-bottom:8px">
+        <span class="eq-modoedicion-badge">✏️ MODO EDICIÓN ACTIVO</span>
+        <span style="font-size:11px;color:var(--text-dimmer);margin-left:6px">Los cambios se guardan automáticamente</span>
+      </div>
+
+      <!-- Dotación del equipo -->
+      <div class="card" id="eq-dotacion-card"></div>
+
+      <div style="margin-top:8px;display:flex;gap:8px">
+        <button class="btn btn-outline btn-full" id="eq-edit-toggle" onclick="toggleEqEdicion()">✏️ Editar dotación</button>
+        <button class="btn btn-gold btn-full" onclick="exportarEquipo()">📤 Copiar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- METAL -->
+  <div class="content" id="tab-metal">
+    <div class="section">
+      <div class="section-label">Turno — <span id="metal-turno-label"></span></div>
+      <div class="turno-selector">
+        <button class="btn btn-gold"    id="mbtn-TM" onclick="setMetalTurno('TM')">☀️ Mañana</button>
+        <button class="btn btn-outline" id="mbtn-TT" onclick="setMetalTurno('TT')">🌅 Tarde</button>
+        <button class="btn btn-outline" id="mbtn-TN" onclick="setMetalTurno('TN')">🌙 Noche</button>
+      </div>
+    </div>
+    <div class="section">
+      <div class="card-header" style="background:var(--surface2);border-radius:var(--radius) var(--radius) 0 0;border:1px solid var(--border);border-bottom:none;padding:10px 14px;font-family:var(--display);font-weight:700;font-size:12px;letter-spacing:0.06em;color:var(--green);text-transform:uppercase">
+        ✅ Metal Descargado
+      </div>
+      <div class="card" style="border-radius:0 0 var(--radius) var(--radius)" id="metal-desc-lista"></div>
+    </div>
+    <div class="stats-row" id="metal-stats"></div>
+    <button class="btn btn-outline btn-full" onclick="exportarMetal()">📤 Copiar resumen metal</button>
+  </div>
+
+  <!-- EXPORTAR -->
+  <div class="content" id="tab-exportar">
+    <div class="section">
+      <div class="section-label">Exportar información</div>
+      <div class="card" style="margin-bottom:10px">
+        <div class="card-header">🏭 Dotación del turno</div>
+        <div style="padding:12px 14px">
+          <p style="font-size:13px;color:var(--text-dim);margin-bottom:10px">Exporta la asignación completa de máquinas MA y AL con el estado de cada operario.</p>
+          <button class="btn btn-gold btn-full" onclick="exportarDotacion()">📋 Copiar dotación</button>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:10px">
+        <div class="card-header">💬 Novedades del turno</div>
+        <div style="padding:12px 14px">
+          <p style="font-size:13px;color:var(--text-dim);margin-bottom:10px">Exporta las novedades registradas para pasar al supervisor del próximo turno.</p>
+          <button class="btn btn-gold btn-full" onclick="exportarNovedades()">📋 Copiar novedades</button>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:10px">
+        <div class="card-header">🤝 Reuniones</div>
+        <div style="padding:12px 14px">
+          <p style="font-size:13px;color:var(--text-dim);margin-bottom:10px">Exporta el registro de reuniones con participantes, temas y compromisos.</p>
+          <button class="btn btn-gold btn-full" onclick="exportarReuniones()">📋 Copiar reuniones</button>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:10px">
+        <div class="card-header">✅ Obligaciones del mes</div>
+        <div style="padding:12px 14px">
+          <p style="font-size:13px;color:var(--text-dim);margin-bottom:10px">Exporta el estado de OPTs, ISECs, Charlas y Subcomité del mes.</p>
+          <button class="btn btn-gold btn-full" onclick="exportarObligaciones()">📋 Copiar obligaciones</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">📦 Exportar todo</div>
+        <div style="padding:12px 14px">
+          <p style="font-size:13px;color:var(--text-dim);margin-bottom:10px">Genera un reporte completo con toda la información del turno.</p>
+          <button class="btn btn-gold btn-full" onclick="exportarTodo()">📋 Copiar reporte completo</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /screen-app -->
+
+<!-- MODALES -->
+<div class="modal-overlay" id="modal-novedad">
+  <div class="modal">
+    <div class="modal-title">Nueva novedad <span class="modal-close" onclick="closeModal('modal-novedad')">✕</span></div>
+    <select class="input-select" id="nov-tipo">
+      <option value="">Tipo...</option>
+      <option value="Máquina">🔧 Máquina / Equipo</option>
+      <option value="Personal">👤 Personal</option>
+      <option value="Producción">📦 Producción</option>
+      <option value="Seguridad">🛡️ Seguridad</option>
+      <option value="SAP">💻 SAP pendiente</option>
+      <option value="Otro">📌 Otro</option>
+    </select>
+    <textarea class="input-area" id="nov-texto" placeholder="Describí la novedad..."></textarea>
+    <select class="input-select" id="nov-turno-sel">
+      <option value="TM">Turno Mañana</option>
+      <option value="TT">Turno Tarde</option>
+      <option value="TN">Turno Noche</option>
+    </select>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-outline" style="flex:1;justify-content:center" onclick="closeModal('modal-novedad')">Cancelar</button>
+      <button class="btn btn-gold" style="flex:1;justify-content:center" onclick="guardarNovedad()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-reunion">
+  <div class="modal">
+    <div class="modal-title">Nueva reunión <span class="modal-close" onclick="closeModal('modal-reunion')">✕</span></div>
+    <input class="input-field" id="reu-numero" type="text" placeholder="N° de reunión o referencia">
+    <input class="input-field" id="reu-fecha" type="date">
+    <input class="input-field" id="reu-participantes" placeholder="Participantes (ej: Paves, Bertalot, RRHH)">
+    <textarea class="input-area" id="reu-temas" placeholder="Temas tratados..."></textarea>
+    <textarea class="input-area" id="reu-compromisos" placeholder="Compromisos asumidos..."></textarea>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-outline" style="flex:1;justify-content:center" onclick="closeModal('modal-reunion')">Cancelar</button>
+      <button class="btn btn-gold" style="flex:1;justify-content:center" onclick="guardarReunion()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-evento">
+  <div class="modal">
+    <div class="modal-title">Nuevo evento <span class="modal-close" onclick="closeModal('modal-evento')">✕</span></div>
+    <input class="input-field" id="evt-fecha" type="date">
+    <input class="input-field" id="evt-titulo" placeholder="Título del evento">
+    <textarea class="input-area" id="evt-detalle" placeholder="Detalle (opcional)..." style="min-height:60px"></textarea>
+    <select class="input-select" id="evt-tipo">
+      <option value="subcomite">📌 Subcomité</option>
+      <option value="reunion">🤝 Reunión</option>
+      <option value="capacitacion">📚 Capacitación</option>
+      <option value="vencimiento">⚠️ Vencimiento</option>
+      <option value="otro">📅 Otro</option>
+    </select>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-outline" style="flex:1;justify-content:center" onclick="closeModal('modal-evento')">Cancelar</button>
+      <button class="btn btn-gold" style="flex:1;justify-content:center" onclick="guardarEvento()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-recordatorio">
+  <div class="modal">
+    <div class="modal-title">Nuevo pendiente <span class="modal-close" onclick="closeModal('modal-recordatorio')">✕</span></div>
+    <input class="input-field" id="rec-titulo" placeholder="¿Qué tenés que hacer?">
+    <input class="input-field" id="rec-detalle" placeholder="Sistema o detalle...">
+    <select class="input-select" id="rec-urgencia">
+      <option value="alta">🔴 Urgente</option>
+      <option value="media">🟠 Esta semana</option>
+      <option value="baja">🔵 Cuando pueda</option>
+    </select>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-outline" style="flex:1;justify-content:center" onclick="closeModal('modal-recordatorio')">Cancelar</button>
+      <button class="btn btn-gold" style="flex:1;justify-content:center" onclick="guardarRecordatorio()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== CONFIGURACIÓN DPSE 1 =====
+// ── EQUIPO A ──
+const OP_A_MA = [
+  'Leineker Mauro','Flores Leandro','Dangelo Mariano','Nardone Cristian',
+  'Rodriguez Martinez Hector','Bordon Nilo','Morbidelli Sebastian','Fernandez Damian',
+  'Paves Sebastian','Carrizo Cesar','Fugaza Dario','Erazo Diego',
+  'Perez Lucas','Genovese Franco','Bordon Nelson'
+];
+const OP_A_AL = [
+  'Bustamante Carlos','Madsan Luciano','Fanelli Luciano','Gomez Mario',
+  'Obregon Maximiliano','Ullua Nelson','Cavieres Ignacio','Escale Emanuel',
+  'Rocha Ruben','Chazarreta Pablo','Devinzenci Matias','Bernardi Leandro',
+  'Mas Moriondo Pablo','Ojeda Alex','Krissel Cristian','Barrientos Ariel'
+];
+
+// ── EQUIPO B ──
+const OP_B_MA = [
+  'Balcaza Sergio','Mondragon Fernando','Santa Coloma Gustavo','Aguirre Fernando',
+  'Maidana Martin','Solis Matias','Genovese Juan','Chaves Alejandro',
+  'Rodriguez Ceferino','Trillo Nahuel','Pereira Mario','Marfurt Diego',
+  'Catalini Agustin','Miranda Carlos'
+];
+const OP_B_AL = [
+  'Elizalde Pablo','Morales Jorge','Tizon Martin','Devincenzi Matias',
+  'Reynoso Guillermo','Pena Nicolas','Gutierrez Ezequiel','Muchico Pablo',
+  'Gonzalez Sebastian','Olivera Ariel','Gonzalez Norberto','Evans Gabriel',
+  'Calfuman Leandro'
+];
+
+// ── EQUIPO C ──
+const OP_C_MA = [
+  'Maliqueo Omar','Oliva Nelson','Andres Marcos','Salamanca Victor',
+  'Ozan Omar','Gelpi Luis','Baldoni Marcelo','Peretti Ignacio',
+  'Moller Bertelsen JP','Castro Pablo','Puchetta Jonatan',
+  'Roux Ramiro','Bondarenco Marcelo','Castro Fund Pablo'
+];
+const OP_C_AL = [
+  'Miranda Ricardo','Navarro Federico','Donoso Flavio','Rodriguez Ariel',
+  'Lloyd Jonatan','Gutierrez Javier','Alarcon Maximiliano','Aguayo Marcelo',
+  'Manccini Roberto','Moller L Lucas','Mamone Victor','Erazo Diego',
+  'Calvo Martin','Infa Mario','Arrivillaga Cesar','Farias','Coronel Ismael'
+];
+
+// ── EQUIPO D ──
+const OP_D_MA = [
+  'Maza Miguel Angel','Vico Pablo Salvador','Martel Livio Daniel','Gioacchini Fabian Alejandro',
+  'Grilli Joel Luciano','Remenar Marcelo Ariel','Moreyra Humberto Mario','Garcia Juan Ignacio',
+  'Perdomo Sergio Daniel','Carrizo Cesar Dario','Barbosa Diego Hernan','Camina Fabian Ezequiel',
+  'Saavedra Maximiliano','Marcial Leonardo Jesus','Zarate Ignacio Agustin'
+];
+const OP_D_AL = [
+  'Molina Edgardo Rodrigo','Carrera Jose Manuel','Bastiani Lucas','Wild Roberto Marcelo',
+  'Baldoni Hector Javier','Camina Javier Fabian','Maciel Ezequiel Pedro','Mengozzi Pablo Martinez',
+  'Chazarreta Pablo Enrique','Bastiani Ricardo Dario','Romero Matias','Vedia Luis Carlos'
+];
+
+// Alias para compatibilidad con módulo Equipos
+const OPERARIOS_MA = OP_C_MA;
+const OPERARIOS_AL = OP_C_AL;
+
+const TODAS_LAS_MAQUINAS = [
+  { nombre:'LBS1',                   icono:'🔥', area:'MA', puestos:['Hornero','Canal','Ayudante'] },
+  { nombre:'LGB1',                   icono:'⚙️', area:'MA', puestos:['Hornero','Canal','Apiladora','Ayudante'] },
+  { nombre:'Línea Small',            icono:'📐', area:'MA', puestos:['Puesto 1','Puesto 2','Puesto 3','Puesto 4'] },
+  { nombre:'Horno Rotativo',         icono:'🌀', area:'MA', puestos:['Hornero','Ayudante 1','Ayudante 2'] },
+  { nombre:'Transporte Al. Líquido', icono:'🚛', area:'MA', puestos:['Camión 1','Camión 2','Camión 3','Activador','Puesto 5'] },
+  { nombre:'Properzi 1',             icono:'🔩', area:'AL', puestos:['Hornero','Rueda','Canal','Op OTT','Ay OTT'] },
+  { nombre:'Properzi 2',             icono:'🔩', area:'AL', puestos:['Hornero','Rueda','Canal','Op OTT','Ay OTT'] },
+  { nombre:'HTT',                    icono:'🌡️', area:'AL', puestos:['Operador','Ayudante 1','Ayudante 2'] },
+  { nombre:'Embalaje 1',             icono:'📦', area:'AL', puestos:['Operador','Ayudante 1','Ayudante 2'] },
+  { nombre:'Embalaje 2',             icono:'📦', area:'AL', puestos:['Operador 1','Operador 2'] },
+  { nombre:'Cesim',                  icono:'⚡', area:'AL', puestos:['Operador 1','Operador 2','Operador 3','Operador 4'] },
+];
+TODAS_LAS_MAQUINAS.forEach(m => m.slots = m.puestos.length);
+
+const CONFIG = {
+  // ── EQUIPO A ──
+  merlo: {
+    nombre: 'Merlo Damián', sector: 'Molde Abierto · Equipo A · DPSE 1',
+    equipo: 'A', area: 'MA',
+    propios: OP_A_MA, prestados_de: OP_A_AL, maquinas: TODAS_LAS_MAQUINAS,
+  },
+  zuniga: {
+    nombre: 'Zúñiga Carlos', sector: 'Alambron · Equipo A · DPSE 1',
+    equipo: 'A', area: 'AL',
+    propios: OP_A_AL, prestados_de: OP_A_MA, maquinas: TODAS_LAS_MAQUINAS,
+  },
+  // ── EQUIPO B ──
+  postigo: {
+    nombre: 'Postigo Antonio', sector: 'Molde Abierto · Equipo B · DPSE 1',
+    equipo: 'B', area: 'MA',
+    propios: OP_B_MA, prestados_de: OP_B_AL, maquinas: TODAS_LAS_MAQUINAS,
+  },
+  paz: {
+    nombre: 'Paz Julio', sector: 'Alambron · Equipo B · DPSE 1',
+    equipo: 'B', area: 'AL',
+    propios: OP_B_AL, prestados_de: OP_B_MA, maquinas: TODAS_LAS_MAQUINAS,
+  },
+  // ── EQUIPO C ──
+  paves: {
+    nombre: 'Paves Gabriel', sector: 'Molde Abierto · Equipo C · DPSE 1',
+    equipo: 'C', area: 'MA',
+    propios: OP_C_MA, prestados_de: OP_C_AL, maquinas: TODAS_LAS_MAQUINAS,
+  },
+  bertalot: {
+    nombre: 'Bertalot Alejandro', sector: 'Alambron · Equipo C · DPSE 1',
+    equipo: 'C', area: 'AL',
+    propios: OP_C_AL, prestados_de: OP_C_MA, maquinas: TODAS_LAS_MAQUINAS,
+  },
+  // ── EQUIPO D ──
+  boubee: {
+    nombre: 'Boubee Marcelo', sector: 'Molde Abierto · Equipo D · DPSE 1',
+    equipo: 'D', area: 'MA',
+    propios: OP_D_MA, prestados_de: OP_D_AL, maquinas: TODAS_LAS_MAQUINAS,
+  },
+  hernandez: {
+    nombre: 'Hernández Néstor', sector: 'Alambron · Equipo D · DPSE 1',
+    equipo: 'D', area: 'AL',
+    propios: OP_D_AL, prestados_de: OP_D_MA, maquinas: TODAS_LAS_MAQUINAS,
+  },
+};
+
+const OBLIGACIONES_DEF = [
+  { key:'opt',    label:'OPT',         meta:9, desc:'por mes' },
+  { key:'isec',   label:'ISEC',        meta:6, desc:'por mes' },
+  { key:'charla', label:'Charlas 5\'', meta:10, desc:'por mes' },
+  { key:'subcom', label:'Subcomité',   meta:1, desc:'por mes' },
+];
+
+const RECORDATORIOS_FIJOS = [
+  { titulo:'Vacaciones en SAP',         detalle:'Verificar vacaciones sin cargar o por vencer', urgencia:'alta' },
+  { titulo:'Capacitaciones vencidas',   detalle:'Revisar en SAP capacitaciones próximas a vencer', urgencia:'media' },
+  { titulo:'Mensajes SAP quincena',     detalle:'Cerrar todos los mensajes antes del corte', urgencia:'alta' },
+  { titulo:'Evaluaciones Soft Expert',  detalle:'Cargar si corresponde al período', urgencia:'baja' },
+];
+
+// ===== CONFIGURACIÓN DE EQUIPOS A/B/C/D =====
+// Datos base de cada equipo. Los operarios se guardan en localStorage y son editables.
+const EQUIPOS_CONFIG = {
+  A: {
+    supervisor: 'Merlo Damián / Zúñiga Carlos',
+    color: 'var(--gold)',
+    colorDim: 'var(--gold-dim)',
+    colorVar: '--gold',
+    svClass: 'eq-sv-A',
+    ma_slots_default: 15,
+    al_slots_default: 16,
+    ma_preload: [
+      'Leineker Mauro','Flores Leandro','Dangelo Mariano','Nardone Cristian',
+      'Rodriguez Martinez Hector','Bordon Nilo','Morbidelli Sebastian','Fernandez Damian',
+      'Paves Sebastian','Carrizo Cesar','Fugaza Dario','Erazo Diego',
+      'Perez Lucas','Genovese Franco','Bordon Nelson'
+    ],
+    al_preload: [
+      'Bustamante Carlos','Madsan Luciano','Fanelli Luciano','Gomez Mario',
+      'Obregon Maximiliano','Ullua Nelson','Cavieres Ignacio','Escale Emanuel',
+      'Rocha Ruben','Chazarreta Pablo','Devinzenci Matias','Bernardi Leandro',
+      'Mas Moriondo Pablo','Ojeda Alex','Krissel Cristian','Barrientos Ariel'
+    ],
+  },
+  B: {
+    supervisor: 'Postigo Antonio / Paz Julio',
+    color: 'var(--blue)',
+    colorDim: 'var(--blue-dim)',
+    colorVar: '--blue',
+    svClass: 'eq-sv-B',
+    ma_slots_default: 14,
+    al_slots_default: 13,
+    ma_preload: OP_B_MA,
+    al_preload: OP_B_AL,
+  },
+  C: {
+    supervisor: 'Gabriel Paves',
+    color: 'var(--green)',
+    colorDim: 'var(--green-dim)',
+    colorVar: '--green',
+    svClass: 'eq-sv-C',
+    ma_slots_default: 13,
+    al_slots_default: 17,
+    ma_preload: OP_C_MA,
+    al_preload: OP_C_AL,
+  },
+  D: {
+    supervisor: 'Boubee Marcelo / Hernández Néstor',
+    color: 'var(--orange)',
+    colorDim: 'var(--orange-dim)',
+    colorVar: '--orange',
+    svClass: 'eq-sv-D',
+    ma_slots_default: 15,
+    al_slots_default: 12,
+    ma_preload: OP_D_MA,
+    al_preload: OP_D_AL,
+  },
+};
+
+// ===== ESTADO =====
+let perfil = null;
+let calFecha = new Date(); calFecha.setHours(0,0,0,0);
+let metalTurno = 'TN';
+let eqActivo = 'A';
+let eqModoEdicion = false;
+
+function getE() {
+  const raw = localStorage.getItem('dpse1v3-' + perfil);
+  const def = {
+    turno: 'TM', asignaciones: {}, ausencias: {},
+    novedades: [], recordatorios: [],
+    obligaciones: { opt:0, isec:0, charla:0, subcom:0 },
+    charlas: [],
+    recDone: {}, mes: new Date().getMonth()
+  };
+  if (!raw) return def;
+  const e = JSON.parse(raw);
+  if (e.mes !== new Date().getMonth()) {
+    // Al cambiar de mes solo se resetean los contadores numéricos,
+    // las charlas se conservan hasta que el usuario las borre manualmente
+    e.obligaciones = { opt:0, isec:0, charla:0, subcom:0 };
+    e.mes = new Date().getMonth();
+    // NO tocar e.charlas — persisten hasta borrado manual
+  }
+  return { ...def, ...e };
+}
+function saveE(e) { localStorage.setItem('dpse1v3-' + perfil, JSON.stringify(e)); }
+
+// Guardar/leer dotación de equipos (storage global, no por perfil)
+// Versión del esquema de dotación — incrementar cuando se agregan preloads nuevos
+const EQUIPOS_DATA_VERSION = 4; // v4: Equipo B cargado
+
+function getEquiposDotacion() {
+  const raw = localStorage.getItem('dpse1-equipos-dotacion');
+  if (!raw) return initEquiposDotacion();
+  const data = JSON.parse(raw);
+  // Si la versión es anterior, aplicar preloads faltantes sin pisar datos editados
+  if ((data._version || 1) < EQUIPOS_DATA_VERSION) {
+    ['A','B','C','D'].forEach(eq => {
+      const cfg = EQUIPOS_CONFIG[eq];
+      if (!data[eq]) {
+        data[eq] = {
+          supervisor: cfg.supervisor,
+          ma: cfg.ma_preload ? [...cfg.ma_preload] : Array(cfg.ma_slots_default).fill(''),
+          al: cfg.al_preload ? [...cfg.al_preload] : Array(cfg.al_slots_default).fill(''),
+        };
+      } else {
+        // Solo aplicar preload si el área estaba completamente vacía
+        if (cfg.ma_preload && data[eq].ma.every(v => !v)) data[eq].ma = [...cfg.ma_preload];
+        if (cfg.al_preload && data[eq].al.every(v => !v)) data[eq].al = [...cfg.al_preload];
+        // Actualizar supervisor si era el placeholder genérico
+        if (data[eq].supervisor && data[eq].supervisor.startsWith('Supervisor Equipo')) {
+          data[eq].supervisor = cfg.supervisor;
+        }
+      }
+    });
+    data._version = EQUIPOS_DATA_VERSION;
+    saveEquiposDotacion(data);
+  }
+  return data;
+}
+function saveEquiposDotacion(data) {
+  localStorage.setItem('dpse1-equipos-dotacion', JSON.stringify(data));
+}
+function initEquiposDotacion() {
+  const data = {};
+  ['A','B','C','D'].forEach(eq => {
+    const cfg = EQUIPOS_CONFIG[eq];
+    data[eq] = {
+      supervisor: cfg.supervisor,
+      ma: cfg.ma_preload ? [...cfg.ma_preload] : Array(cfg.ma_slots_default).fill(''),
+      al: cfg.al_preload ? [...cfg.al_preload] : Array(cfg.al_slots_default).fill(''),
+    };
+  });
+  saveEquiposDotacion(data);
+  return data;
+}
+
+// ===== LOGIN =====
+function renderLoginTurnos() {
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const colores = { TM:'var(--gold)', TT:'var(--orange)', TN:'var(--blue)', F:'var(--text-dimmer)' };
+  ['A','B','C','D'].forEach(eq => {
+    const t = getTurnoEquipo(eq, hoy);
+    const el = document.getElementById('login-turno-' + eq);
+    if (el) {
+      el.textContent = t.icono + ' ' + t.label;
+      el.style.color = colores[t.turno] || 'var(--text-dim)';
+    }
+  });
+}
+
+function resaltarPerfilActivo(sv) {
+  // Quitar resaltado anterior
+  document.querySelectorAll('.supervisor-card').forEach(c => c.classList.remove('sv-activo'));
+  if (sv) {
+    const card = document.getElementById('card-' + sv);
+    if (card) card.classList.add('sv-activo');
+  }
+}
+
+function entrar(sv) {
+  perfil = sv;
+  const cfg = CONFIG[sv];
+  resaltarPerfilActivo(sv);
+  document.getElementById('screen-login').style.display = 'none';
+  document.getElementById('screen-app').style.display = 'block';
+  document.getElementById('hdr-nombre').textContent = cfg.nombre;
+  document.getElementById('hdr-sector').textContent = cfg.sector;
+  // Badge del equipo en el header
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const turnoEq = getTurnoEquipo(cfg.equipo, hoy);
+  const eqColores = { A:'var(--gold)', B:'var(--blue)', C:'var(--green)', D:'var(--orange)' };
+  document.getElementById('hdr-sector').innerHTML =
+    `<span style="color:${eqColores[cfg.equipo]};font-weight:700">Eq.${cfg.equipo}</span> · ${cfg.area} · ${turnoEq.icono} ${turnoEq.label}`;
+  const now = new Date();
+  document.getElementById('fecha-display').textContent =
+    now.toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'}).toUpperCase();
+  const meses = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+  document.getElementById('mes-label').textContent = meses[now.getMonth()] + ' ' + now.getFullYear();
+  renderTurno(); renderDotacion(); renderAusencias(); renderNovedades();
+  renderObligaciones(); renderRecordatorios(); renderReuniones(); renderMetal();
+  const hoyStr = new Date().toISOString().split('T')[0];
+  document.getElementById('evt-fecha').value = hoyStr;
+  document.getElementById('reu-fecha').value = hoyStr;
+}
+
+function cambiarPerfil() {
+  document.getElementById('screen-app').style.display = 'none';
+  document.getElementById('screen-login').style.display = 'flex';
+  // Resaltar el último perfil usado
+  resaltarPerfilActivo(perfil);
+  perfil = null;
+}
+
+// ===== TURNO =====
+function setTurno(t) { const e=getE(); e.turno=t; saveE(e); renderTurno(); }
+function renderTurno() {
+  const t = getE().turno;
+  const badge = document.getElementById('turno-display');
+  badge.textContent = t; badge.className = 'turno-badge turno-' + t;
+  ['TM','TT','TN'].forEach(x => {
+    const b = document.getElementById('btn-' + x);
+    if (b) b.className = 'btn ' + (x===t?'btn-gold':'btn-outline');
+  });
+}
+
+// ===== ROTACIÓN 6x2 =====
+const FECHA_ANCLA = new Date(2026, 2, 22); FECHA_ANCLA.setHours(0,0,0,0);
+const ANCLA_IDX = { A:19, B:7, C:1, D:13 };
+
+function getTurnoEquipo(equipo, fecha) {
+  const msxDia = 24*60*60*1000;
+  const diffDias = Math.round((fecha - FECHA_ANCLA) / msxDia);
+  const cicloIdx = ((ANCLA_IDX[equipo] + diffDias) % 24 + 24) % 24;
+  if (cicloIdx < 6)  return { turno:'TT', label:'Tarde',  icono:'🌅', color:'var(--orange)' };
+  if (cicloIdx < 8)  return { turno:'F',  label:'Franco', icono:'⚪', color:'var(--text-dimmer)' };
+  if (cicloIdx < 14) return { turno:'TM', label:'Mañana', icono:'☀️', color:'var(--gold)' };
+  if (cicloIdx < 16) return { turno:'F',  label:'Franco', icono:'⚪', color:'var(--text-dimmer)' };
+  if (cicloIdx < 22) return { turno:'TN', label:'Noche',  icono:'🌙', color:'var(--blue)' };
+  return                     { turno:'F',  label:'Franco', icono:'⚪', color:'var(--text-dimmer)' };
+}
+
+// ===== MÓDULO EQUIPOS =====
+function selectEquipo(eq) {
+  eqActivo = eq;
+  eqModoEdicion = false;
+  // Actualizar botones
+  ['A','B','C','D'].forEach(e => {
+    const btn = document.getElementById('eqbtn-' + e);
+    btn.className = 'equipo-btn' + (e === eq ? ' eq-active-' + e : '');
+  });
+  renderEquipo();
+}
+
+function renderEquipoTurnosBadges() {
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  ['A','B','C','D'].forEach(eq => {
+    const t = getTurnoEquipo(eq, hoy);
+    const el = document.getElementById('eq-turno-' + eq);
+    if (el) {
+      el.textContent = t.turno;
+      el.style.color = t.color;
+    }
+  });
+}
+
+function renderEquipo() {
+  renderEquipoTurnosBadges();
+  const eq = eqActivo;
+  const cfg = EQUIPOS_CONFIG[eq];
+  const data = getEquiposDotacion();
+  const eqData = data[eq];
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const turnoHoy = getTurnoEquipo(eq, hoy);
+
+  // Info header
+  document.getElementById('eq-supervisor-display').innerHTML =
+    `<span class="eq-supervisor-tag ${cfg.svClass}">${eq}</span> &nbsp;${eqData.supervisor}`;
+  document.getElementById('eq-sector-display').textContent =
+    `MA: ${eqData.ma.filter(v=>v).length} op. · AL: ${eqData.al.filter(v=>v).length} op.`;
+
+  // Turno hoy
+  document.getElementById('eq-turno-hoy-icono').textContent = turnoHoy.icono;
+  document.getElementById('eq-turno-hoy-icono').style.color = turnoHoy.color;
+  document.getElementById('eq-turno-hoy-label').textContent = turnoHoy.label;
+  document.getElementById('eq-turno-hoy-label').style.color = turnoHoy.color;
+
+  // Todos los equipos hoy (resumen compacto)
+  const todosHoy = ['A','B','C','D'].map(e => {
+    const t = getTurnoEquipo(e, hoy);
+    const activo = e === eq;
+    return `<span style="font-family:var(--display);font-weight:700;font-size:12px;
+      color:${activo?t.color:'var(--text-dim)'};
+      background:${activo?cfg.colorDim:'transparent'};
+      padding:2px 8px;border-radius:4px;
+      border:1px solid ${activo?t.color:'var(--border)'};
+      display:inline-flex;align-items:center;gap:4px">
+      ${e} <span style="color:${t.color}">${t.icono} ${t.turno}</span>
+    </span>`;
+  }).join('');
+  document.getElementById('eq-todos-hoy').innerHTML = todosHoy;
+
+  // Badge edición
+  document.getElementById('eq-edicion-badge').style.display = eqModoEdicion ? 'block' : 'none';
+  const editBtn = document.getElementById('eq-edit-toggle');
+  editBtn.textContent = eqModoEdicion ? '✅ Finalizar edición' : '✏️ Editar dotación';
+  editBtn.className = eqModoEdicion ? 'btn btn-gold btn-full' : 'btn btn-outline btn-full';
+
+  // Dotación
+  const card = document.getElementById('eq-dotacion-card');
+  const maOps = eqData.ma;
+  const alOps = eqData.al;
+
+  const renderArea = (ops, area, areaLabel, areaColor) => {
+    const filas = ops.map((nombre, i) => {
+      if (eqModoEdicion) {
+        return `<div class="eq-operario-row">
+          <div class="eq-op-num">${i+1}</div>
+          <input class="eq-op-input" value="${nombre}" placeholder="Nombre del operario..."
+            onchange="updateEqOperario('${eq}','${area}',${i},this.value)"
+            oninput="updateEqOperario('${eq}','${area}',${i},this.value)">
+          <div class="eq-del-btn" onclick="removeEqOperario('${eq}','${area}',${i})">×</div>
+        </div>`;
+      } else {
+        return `<div class="eq-operario-row">
+          <div class="eq-op-num">${i+1}</div>
+          <div class="eq-op-nombre ${nombre?'':'vacio'}">${nombre || 'Sin asignar'}</div>
+        </div>`;
+      }
+    }).join('');
+
+    const addBtn = eqModoEdicion
+      ? `<button class="eq-add-row-btn" onclick="addEqOperario('${eq}','${area}')">+ Agregar operario</button>`
+      : '';
+
+    return `
+      <div class="eq-area-header">
+        <span style="color:${areaColor}">${areaLabel}</span>
+        <span style="font-size:11px;color:var(--text-dimmer)">${ops.filter(v=>v).length} operarios</span>
+      </div>
+      ${filas}
+      ${addBtn}`;
+  };
+
+  card.innerHTML =
+    renderArea(maOps, 'ma', '🔥 MOLDE ABIERTO', 'var(--orange)') +
+    `<div style="height:1px;background:var(--border2)"></div>` +
+    renderArea(alOps, 'al', '🔩 ALAMBRON', 'var(--blue)');
+
+  // Editar supervisor si está en modo edición
+  if (eqModoEdicion) {
+    const svDisplay = document.getElementById('eq-supervisor-display');
+    svDisplay.innerHTML = `
+      <span class="eq-supervisor-tag ${cfg.svClass}">${eq}</span>
+      &nbsp;<input
+        value="${eqData.supervisor}"
+        placeholder="Nombre del supervisor..."
+        onchange="updateEqSupervisor('${eq}',this.value)"
+        style="background:var(--surface2);border:1px solid var(--border2);border-radius:4px;
+          color:var(--text);font-size:14px;padding:4px 8px;font-family:var(--body);width:180px;">`;
+  }
+}
+
+function toggleEqEdicion() {
+  eqModoEdicion = !eqModoEdicion;
+  renderEquipo();
+}
+
+function updateEqOperario(eq, area, idx, valor) {
+  const data = getEquiposDotacion();
+  data[eq][area][idx] = valor.trim();
+  saveEquiposDotacion(data);
+  // Actualizar solo el contador sin re-renderizar todo
+  document.getElementById('eq-sector-display').textContent =
+    `MA: ${data[eq].ma.filter(v=>v).length} op. · AL: ${data[eq].al.filter(v=>v).length} op.`;
+}
+
+function removeEqOperario(eq, area, idx) {
+  const data = getEquiposDotacion();
+  data[eq][area].splice(idx, 1);
+  saveEquiposDotacion(data);
+  renderEquipo();
+}
+
+function addEqOperario(eq, area) {
+  const data = getEquiposDotacion();
+  data[eq][area].push('');
+  saveEquiposDotacion(data);
+  renderEquipo();
+  // Foco en el nuevo input
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('.eq-op-input');
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  }, 50);
+}
+
+function updateEqSupervisor(eq, valor) {
+  const data = getEquiposDotacion();
+  data[eq].supervisor = valor.trim();
+  saveEquiposDotacion(data);
+}
+
+function exportarEquipo() {
+  const eq = eqActivo;
+  const data = getEquiposDotacion();
+  const eqData = data[eq];
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const turnoHoy = getTurnoEquipo(eq, hoy);
+  const fechaStr = hoy.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'}).toUpperCase();
+
+  let txt = `👥 *DOTACIÓN EQUIPO ${eq} — DPSE 1*\n`;
+  txt += `${eqData.supervisor.toUpperCase()}\n`;
+  txt += `${fechaStr} · ${turnoHoy.icono} ${turnoHoy.label.toUpperCase()}\n\n`;
+
+  const maPresentes = eqData.ma.filter(v => v);
+  const alPresentes = eqData.al.filter(v => v);
+
+  if (maPresentes.length) {
+    txt += `🔥 *MOLDE ABIERTO* (${maPresentes.length})\n`;
+    maPresentes.forEach((op, i) => txt += `${i+1}. ${op}\n`);
+    txt += '\n';
+  }
+  if (alPresentes.length) {
+    txt += `🔩 *ALAMBRON* (${alPresentes.length})\n`;
+    alPresentes.forEach((op, i) => txt += `${i+1}. ${op}\n`);
+  }
+
+  // Todos los equipos hoy
+  txt += `\n─────────────────\n`;
+  txt += `*Rotación hoy DPSE 1:*\n`;
+  ['A','B','C','D'].forEach(e => {
+    const t = getTurnoEquipo(e, hoy);
+    txt += `Equipo ${e}: ${t.icono} ${t.label}\n`;
+  });
+
+  navigator.clipboard.writeText(txt.trim())
+    .then(() => alert('✓ Dotación del Equipo ' + eq + ' copiada'))
+    .catch(() => prompt('Copiá esto:', txt));
+}
+
+// ===== DOTACIÓN =====
+function renderDotacion() {
+  const e = getE();
+  const cfg = CONFIG[perfil];
+  const todosOperarios = [...cfg.propios, ...cfg.prestados_de];
+  const todosAsignados = new Set(Object.values(e.asignaciones).filter(v=>v));
+  const ausentes = todosOperarios.filter(op => e.ausencias[op]==='ausente').length;
+  const vacaciones = todosOperarios.filter(op => e.ausencias[op]==='vacaciones').length;
+  const capacitacion = todosOperarios.filter(op => e.ausencias[op]==='capacitacion').length;
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat-pill"><div class="stat-pill-num num-green">${todosAsignados.size}</div><div class="stat-pill-label">En máquina</div></div>
+    <div class="stat-pill"><div class="stat-pill-num num-red">${ausentes}</div><div class="stat-pill-label">Ausentes</div></div>
+    <div class="stat-pill"><div class="stat-pill-num num-blue">${vacaciones}</div><div class="stat-pill-label">Vacaciones</div></div>
+    <div class="stat-pill"><div class="stat-pill-num num-gold">${capacitacion}</div><div class="stat-pill-label">Capac.</div></div>
+  `;
+  const propiosDisp = cfg.propios.filter(op => (e.ausencias[op]||'presente')==='presente');
+  const prestadosDisp = cfg.prestados_de.filter(op => (e.ausencias[op]||'presente')==='presente');
+  const lista = document.getElementById('maquinas-lista');
+  let ultimaArea = null;
+  lista.innerHTML = cfg.maquinas.map((maq, mi) => {
+    const asignadosEnMaq = Array.from({length:maq.slots},(_,si)=>e.asignaciones[`${mi}_${si}`]).filter(v=>v).length;
+    const slotsHtml = Array.from({length:maq.slots},(_,si) => {
+      const key = `${mi}_${si}`;
+      const asignado = e.asignaciones[key]||'';
+      const propiosOpts = propiosDisp.filter(op=>!todosAsignados.has(op)||op===asignado)
+        .map(op=>`<option value="${op}" ${asignado===op?'selected':''}>${op}</option>`).join('');
+      const prestadosOpts = prestadosDisp.filter(op=>!todosAsignados.has(op)||op===asignado)
+        .map(op=>`<option value="${op}" ${asignado===op?'selected':''}>${op}</option>`).join('');
+      const opts = `<option value="">— ${maq.puestos[si]||'puesto '+(si+1)} —</option>
+        <optgroup label="— ${perfil==='paves'?'Molde Abierto':'Alambron'} —">${propiosOpts}</optgroup>
+        ${prestadosOpts?`<optgroup label="— ${perfil==='paves'?'Alambron':'Molde Abierto'} —">${prestadosOpts}</optgroup>`:''}`;
+      return `<div style="display:flex;align-items:center;gap:6px;margin-top:5px">
+        <span style="font-family:var(--display);font-size:10px;color:var(--text-dimmer);min-width:60px;text-align:right;flex-shrink:0">${maq.puestos[si]||''}</span>
+        <select class="maq-operario-select ${asignado?'asignado':''}" style="flex:1"
+          onchange="asignarOperario('${key}',this.value,this)">${opts}</select>
+        <div class="estado-dot ${asignado?'dot-on':'dot-off'}" style="flex-shrink:0"></div>
+      </div>`;
+    }).join('');
+    const areaLabels = { MA:'🔥 MOLDE ABIERTO', AL:'🔩 ALAMBRON' };
+    const separador = maq.area!==ultimaArea
+      ? `<div style="padding:7px 14px 5px;background:var(--surface2);border-bottom:1px solid var(--border2);font-family:var(--display);font-weight:800;font-size:11px;letter-spacing:0.1em;color:var(--gold)">${areaLabels[maq.area]||maq.area}</div>`
+      : '';
+    ultimaArea = maq.area;
+    return `${separador}
+      <div style="border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:stretch">
+          <div class="maq-icono" style="padding:12px 0;align-self:stretch;height:auto">${maq.icono}</div>
+          <div class="maq-body" style="flex:1;padding:10px 12px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">
+              <div class="maq-nombre">${maq.nombre}</div>
+              <span style="font-family:var(--display);font-size:12px;font-weight:700;color:${asignadosEnMaq===maq.slots?'var(--green)':'var(--text-dimmer)'}">${asignadosEnMaq}/${maq.slots}</span>
+            </div>
+            ${slotsHtml}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+  const chipClass = {ausente:'ausente',franco:'franco',vacaciones:'vacaciones',capacitacion:'capacitacion',brigada:'brigada',cambioturno:'op-chip',bajamedica:'ausente'};
+  const chipLabel = {ausente:'✗',franco:'(F)',vacaciones:'🏖️',capacitacion:'📚',brigada:'🚒',cambioturno:'🔄',bajamedica:'🏥'};
+  const propiosSinAsignar = cfg.propios.filter(op=>(e.ausencias[op]||'presente')==='presente'&&!todosAsignados.has(op));
+  const propiosNoPresentes = cfg.propios.filter(op=>(e.ausencias[op]||'presente')!=='presente');
+  const sinContainer = document.getElementById('sin-asignar-lista');
+  if (!propiosSinAsignar.length && !propiosNoPresentes.length) {
+    sinContainer.innerHTML = '<span style="font-size:12px;color:var(--text-dimmer)">Todos los propios asignados ✓</span>';
+  } else {
+    sinContainer.innerHTML =
+      propiosSinAsignar.map(op=>`<div class="op-chip">${op}</div>`).join('') +
+      propiosNoPresentes.map(op=>{const est=e.ausencias[op]||'presente';return `<div class="op-chip ${chipClass[est]||''}">${op} ${chipLabel[est]||''}</div>`;}).join('');
+  }
+}
+
+function asignarOperario(key, operario, selectEl) {
+  const e = getE();
+  if (operario) { Object.keys(e.asignaciones).forEach(k=>{ if(k!==key&&e.asignaciones[k]===operario) delete e.asignaciones[k]; }); }
+  if (operario) e.asignaciones[key] = operario; else delete e.asignaciones[key];
+  saveE(e);
+  if (selectEl) selectEl.className = 'maq-operario-select '+(operario?'asignado':'');
+  renderDotacion();
+}
+
+function limpiarDotacion() {
+  if (!confirm('¿Limpiar todas las asignaciones del turno?')) return;
+  const e = getE(); e.asignaciones = {}; saveE(e); renderDotacion();
+}
+
+function exportarDotacion() {
+  const e = getE(); const cfg = CONFIG[perfil];
+  const turnoIconos={TM:'☀️',TT:'🌤',TN:'🌙'}, turnoLabels={TM:'TM',TT:'TT',TN:'TN'};
+  const hoy = new Date();
+  const dia=String(hoy.getDate()).padStart(2,'0'), mes=String(hoy.getMonth()+1).padStart(2,'0'), anio=hoy.getFullYear();
+  const fmtNombre=(op)=>{if(!op)return'—';const p=op.trim().split(' ');if(p.length===1)return op;const n=p[p.length-1];const a=p.slice(0,-1).join(' ');return`${a}, ${n}`;};
+  let txt = `✅ *DOTACIÓN TURNO ${turnoLabels[e.turno]} ${turnoIconos[e.turno]}: ${dia}/${mes}/${anio}*\n\n`;
+  const maqMA = cfg.maquinas.filter(m=>m.area==='MA'), maqAL = cfg.maquinas.filter(m=>m.area==='AL');
+  const renderArea=(maquinas,areaLabel)=>{
+    let bloque=`═══ ${areaLabel} ═══\n\n`;
+    maquinas.forEach(maq=>{
+      const mi=cfg.maquinas.indexOf(maq);
+      const tieneAlguien=maq.puestos.some((_,si)=>e.asignaciones[`${mi}_${si}`]);
+      if(!tieneAlguien)return;
+      bloque+=`🔹 ${maq.nombre}\n`;
+      maq.puestos.forEach((puesto,si)=>{const op=e.asignaciones[`${mi}_${si}`]||'—';bloque+=`${puesto}: ${fmtNombre(op)}\n`;});
+      bloque+='\n';
+    });
+    return bloque;
+  };
+  txt+=renderArea(maqMA,'MOLDE ABIERTO');
+  txt+=renderArea(maqAL,'ALAMBRON');
+  const todosOps=[...cfg.propios,...cfg.prestados_de];
+  const vacacs=todosOps.filter(op=>e.ausencias[op]==='vacaciones');
+  const ausentes=todosOps.filter(op=>e.ausencias[op]==='ausente');
+  const capacs=todosOps.filter(op=>e.ausencias[op]==='capacitacion');
+  const brigada=todosOps.filter(op=>e.ausencias[op]==='brigada');
+  const francos=todosOps.filter(op=>e.ausencias[op]==='franco');
+  const todosAsignados=new Set(Object.values(e.asignaciones).filter(v=>v));
+  const soporte=cfg.propios.filter(op=>(e.ausencias[op]||'presente')==='presente'&&!todosAsignados.has(op));
+  if(vacacs.length)txt+=`📌 *VACACIONES*\n${vacacs.map(fmtNombre).join('\n')}\n\n`;
+  const otros=[...ausentes.map(op=>`${fmtNombre(op)} (Ausente)`),...capacs.map(op=>`${fmtNombre(op)} (Capacitación)`),...brigada.map(op=>`${fmtNombre(op)} (Brigada)`),...soporte.map(op=>`${fmtNombre(op)} (Soporte)`)];
+  if(otros.length)txt+=`📌 *OTROS*\n${otros.join('\n')}\n\n`;
+  if(francos.length)txt+=`📌 *FRANCO*\n${francos.map(fmtNombre).join('\n')}\n`;
+  navigator.clipboard.writeText(txt.trim()).then(()=>alert('✓ Copiado para WhatsApp')).catch(()=>prompt('Copiá esto:',txt));
+}
+
+// ===== AUSENCIAS =====
+function renderAusencias() {
+  const e = getE(); const cfg = CONFIG[perfil];
+  const container = document.getElementById('ausencias-lista');
+  const ESTADOS=[
+    {val:'presente',     label:'🟢 Presente'},
+    {val:'ausente',      label:'🔴 Ausente'},
+    {val:'vacaciones',   label:'🏖️ Vacaciones'},
+    {val:'capacitacion', label:'📚 Capacitación'},
+    {val:'brigada',      label:'🚒 Brigada'},
+    {val:'cambioturno',  label:'🔄 Cambio de Turno'},
+    {val:'bajamedica',   label:'🏥 Baja Médica'},
+    {val:'franco',       label:'⚪ Franco'},
+  ];
+  const colorBorde={
+    presente:'var(--green)',ausente:'var(--red)',vacaciones:'var(--blue)',
+    capacitacion:'var(--gold)',brigada:'var(--orange)',franco:'var(--border2)',
+    cambioturno:'var(--green)',bajamedica:'var(--red)',
+  };
+  const renderGrupo=(lista,titulo,esOtro)=>{
+    const rows=lista.map(op=>{const est=e.ausencias[op]||'presente';const opts=ESTADOS.map(s=>`<option value="${s.val}" ${est===s.val?'selected':''}>${s.label}</option>`).join('');
+      return `<div class="ausencia-row"><div class="aus-nombre" style="${esOtro?'color:var(--text-dim)':''}">${op}${esOtro?` <span style="font-size:10px;color:var(--orange);font-family:var(--display);font-weight:700">AL</span>`:''}</div>
+      <select class="aus-tipo-select" style="border-color:${colorBorde[est]}" onchange="setAusencia('${op}',this.value,this)">${opts}</select></div>`;
+    }).join('');
+    return `<div class="card-header" style="background:var(--surface2)">${titulo}</div>${rows}`;
+  };
+  const otroLabel=perfil==='paves'?'↔ Disponibles de Alambron (Bertalot)':'↔ Disponibles de Molde Abierto (Paves)';
+  container.innerHTML=renderGrupo(cfg.propios,'👤 Mi dotación',false)+`<div style="height:1px;background:var(--border2);margin:2px 0"></div>`+renderGrupo(cfg.prestados_de,otroLabel,true);
+}
+
+function setAusencia(op, estado, selectEl) {
+  const e = getE(); e.ausencias[op]=estado;
+  if(estado!=='presente'){Object.keys(e.asignaciones).forEach(k=>{if(e.asignaciones[k]===op)delete e.asignaciones[k];});}
+  saveE(e);
+  const colores={
+    presente:'var(--green)',ausente:'var(--red)',vacaciones:'var(--blue)',
+    capacitacion:'var(--gold)',brigada:'var(--orange)',franco:'var(--border2)',
+    cambioturno:'var(--green)',bajamedica:'var(--red)',
+  };
+  if(selectEl)selectEl.style.borderColor=colores[estado]||'var(--border2)';
+  renderDotacion();
+}
+
+// ===== NOVEDADES =====
+function renderNovedades() {
+  const e=getE(); const c=document.getElementById('lista-novedades');
+  if(!e.novedades.length){c.innerHTML='<div style="padding:20px;text-align:center;color:var(--text-dimmer);font-size:13px">Sin novedades registradas</div>';return;}
+  const col={Máquina:'dot-orange',Personal:'dot-red','Producción':'dot-blue',Seguridad:'dot-red',SAP:'dot-blue',Otro:'dot-green'};
+  c.innerHTML=e.novedades.map((n,i)=>`<div class="novedad-item"><div class="novedad-dot ${col[n.tipo]||'dot-blue'}"></div>
+    <div class="novedad-body"><div class="novedad-tag">${n.tipo}</div><div class="novedad-text">${n.texto}</div><div class="novedad-meta">T${n.turno} · ${n.fecha}</div></div>
+    <div class="novedad-del" onclick="eliminarNovedad(${i})">×</div></div>`).join('');
+}
+function guardarNovedad() {
+  const tipo=document.getElementById('nov-tipo').value, texto=document.getElementById('nov-texto').value.trim(), turno=document.getElementById('nov-turno-sel').value;
+  if(!tipo||!texto){alert('Completá tipo y descripción');return;}
+  const e=getE(); const fecha=new Date().toLocaleDateString('es-AR',{day:'numeric',month:'short'});
+  e.novedades.unshift({tipo,texto,turno,fecha}); saveE(e); renderNovedades(); closeModal('modal-novedad');
+  document.getElementById('nov-texto').value=''; document.getElementById('nov-tipo').value='';
+}
+function eliminarNovedad(i){const e=getE();e.novedades.splice(i,1);saveE(e);renderNovedades();}
+function exportarNovedades(){
+  const e=getE(); if(!e.novedades.length){alert('No hay novedades');return;}
+  const cfg=CONFIG[perfil];
+  const txt=`📋 *NOVEDADES DPSE 1 — ${cfg.nombre.toUpperCase()}*\n`+new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'}).toUpperCase()+'\n\n'+e.novedades.map(n=>`*[${n.tipo} · T${n.turno}]* ${n.texto}`).join('\n\n');
+  navigator.clipboard.writeText(txt).then(()=>alert('✓ Copiado')).catch(()=>prompt('Copiá:',txt));
+}
+
+// ===== OBLIGACIONES =====
+function renderObligaciones() {
+  const e=getE(); if(!e.charlas)e.charlas=[];
+  document.getElementById('oblig-grid').innerHTML=OBLIGACIONES_DEF.map(o=>{
+    const actual=o.key==='charla'?(e.charlas||[]).length:(e.obligaciones[o.key]||0);
+    const pct=Math.min(100,Math.round(actual/o.meta*100));
+    const clase=pct>=100?'oblig-ok':pct>=60?'oblig-warn':'oblig-danger';
+    return `<div class="oblig-card ${clase}"><div class="oblig-label">${o.label}</div>
+      <div class="oblig-num">${actual}<span style="font-size:13px;opacity:.4">/${o.meta}</span></div>
+      <div class="oblig-prog">${o.desc}</div>
+      <div class="oblig-bar"><div class="oblig-fill" style="width:${pct}%"></div></div></div>`;
+  }).join('');
+  document.getElementById('oblig-controles').innerHTML=OBLIGACIONES_DEF.map(o=>{
+    if(o.key==='charla'){
+      const charlas=e.charlas||[];
+      const filas=charlas.map((num,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+        <span style="font-family:var(--display);font-size:11px;color:var(--text-dimmer);min-width:18px">${i+1}.</span>
+        <span style="font-family:var(--mono,monospace);font-size:13px;color:var(--blue);flex:1">SAP #${num}</span>
+        <span onclick="eliminarCharla(${i})" style="color:var(--red);cursor:pointer;font-size:18px;line-height:1;padding:0 4px">×</span></div>`).join('');
+      return `<div style="padding:12px 14px;border-bottom:1px solid var(--border)">
+        <div style="font-weight:600;font-size:14px;margin-bottom:10px">Charlas 5' registradas</div>
+        ${filas||'<div style="font-size:12px;color:var(--text-dimmer);padding:4px 0 8px">Sin registros</div>'}
+        <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
+          <input id="input-sap-charla" type="text" placeholder="N° SAP..." maxlength="20"
+            style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:var(--body);font-size:14px;padding:8px 10px;"
+            onkeydown="if(event.key==='Enter')agregarCharla()">
+          <button class="btn btn-gold" onclick="agregarCharla()" style="padding:8px 14px;flex-shrink:0">+ Agregar</button>
+        </div></div>`;
+    }
+    const actual=e.obligaciones[o.key]||0;
+    return `<div class="counter-row"><div style="font-weight:600;font-size:14px">${o.label}</div>
+      <div class="counter-controls">
+        <button class="counter-btn" onclick="ajustarOblig('${o.key}',-1)">−</button>
+        <span class="counter-val">${actual}</span>
+        <button class="counter-btn" onclick="ajustarOblig('${o.key}',1)">+</button>
+      </div></div>`;
+  }).join('');
+}
+function agregarCharla(){
+  const input=document.getElementById('input-sap-charla'); const val=input.value.trim(); if(!val)return;
+  const e=getE(); if(!e.charlas)e.charlas=[]; e.charlas.push(val); saveE(e); input.value=''; renderObligaciones();
+  setTimeout(()=>{const inp=document.getElementById('input-sap-charla');if(inp)inp.focus();},50);
+}
+function eliminarCharla(i){const e=getE();if(!e.charlas)return;e.charlas.splice(i,1);saveE(e);renderObligaciones();}
+function ajustarOblig(key,delta){const e=getE();e.obligaciones[key]=Math.max(0,(e.obligaciones[key]||0)+delta);saveE(e);renderObligaciones();}
+function resetObligaciones(){
+  if(!confirm('¿Reiniciar contadores del mes? (OPT, ISEC, Subcomité)\n\nLas Charlas de 5 minutos NO se borran — usá el botón × en cada charla para eliminarlas.')) return;
+  const e=getE();
+  e.obligaciones={opt:0,isec:0,charla:0,subcom:0};
+  // charlas se conservan — el usuario las borra individualmente
+  saveE(e);
+  renderObligaciones();
+}
+
+// ===== RECORDATORIOS =====
+function renderRecordatorios() {
+  const e=getE(); const todos=[...RECORDATORIOS_FIJOS,...e.recordatorios];
+  const clases={alta:'urgency-alta',media:'urgency-media',baja:'urgency-baja'};
+  document.getElementById('lista-recordatorios').innerHTML=todos.map((r,i)=>{
+    const done=e.recDone?.[i]||false; const esFijo=i<RECORDATORIOS_FIJOS.length;
+    return `<div class="rec-item"><div class="rec-check ${done?'done':''}" onclick="toggleRec(${i})">${done?'✓':''}</div>
+      <div class="rec-body"><div class="rec-title ${done?'done':''}">${r.titulo}</div><div class="rec-sub">${r.detalle}</div></div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+        <span class="rec-urgency ${clases[r.urgencia]}">${r.urgencia.toUpperCase()}</span>
+        ${!esFijo?`<span style="font-size:18px;cursor:pointer;color:var(--text-dimmer)" onclick="eliminarRec(${i})">×</span>`:''}
+      </div></div>`;
+  }).join('');
+}
+function toggleRec(i){const e=getE();if(!e.recDone)e.recDone={};e.recDone[i]=!e.recDone[i];saveE(e);renderRecordatorios();}
+function eliminarRec(i){const e=getE();const idx=i-RECORDATORIOS_FIJOS.length;if(idx>=0){e.recordatorios.splice(idx,1);saveE(e);renderRecordatorios();}}
+function guardarRecordatorio(){
+  const titulo=document.getElementById('rec-titulo').value.trim(),detalle=document.getElementById('rec-detalle').value.trim(),urgencia=document.getElementById('rec-urgencia').value;
+  if(!titulo){alert('Escribí el título');return;}
+  const e=getE();e.recordatorios.push({titulo,detalle,urgencia});saveE(e);renderRecordatorios();closeModal('modal-recordatorio');
+  document.getElementById('rec-titulo').value='';document.getElementById('rec-detalle').value='';
+}
+
+// ===== TABS =====
+function switchTab(tab, el) {
+  document.querySelectorAll('.content').forEach(c=>c.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  el.classList.add('active');
+  if(tab==='calendario')renderCalendario();
+  if(tab==='equipos'){eqModoEdicion=false;renderEquipo();}
+}
+
+// ===== REUNIONES =====
+function renderReuniones() {
+  const e=getE(); const lista=document.getElementById('lista-reuniones'); const reuniones=e.reuniones||[];
+  if(!reuniones.length){lista.innerHTML='<div style="padding:20px;text-align:center;color:var(--text-dimmer);font-size:13px">Sin reuniones registradas</div>';return;}
+  lista.innerHTML=reuniones.map((r,i)=>`<div class="reunion-card">
+    <div class="reunion-header"><div><div class="reunion-num">Reunión ${r.numero||(i+1)}</div><div class="reunion-fecha">${r.fecha||'—'}</div></div>
+    <div class="reunion-del" onclick="eliminarReunion(${i})">×</div></div>
+    ${r.participantes?`<div class="reunion-field"><div class="reunion-field-label">👥 Participantes</div><div class="reunion-field-val">${r.participantes}</div></div>`:''}
+    ${r.temas?`<div class="reunion-field"><div class="reunion-field-label">💬 Temas tratados</div><div class="reunion-field-val">${r.temas}</div></div>`:''}
+    ${r.compromisos?`<div class="reunion-field"><div class="reunion-field-label">✅ Compromisos</div><div class="reunion-field-val">${r.compromisos}</div></div>`:''}
+    </div>`).join('');
+}
+function guardarReunion(){
+  const numero=document.getElementById('reu-numero').value.trim(),fecha=document.getElementById('reu-fecha').value,
+    participantes=document.getElementById('reu-participantes').value.trim(),temas=document.getElementById('reu-temas').value.trim(),
+    compromisos=document.getElementById('reu-compromisos').value.trim();
+  if(!participantes&&!temas){alert('Completá al menos participantes o temas');return;}
+  const e=getE();if(!e.reuniones)e.reuniones=[];e.reuniones.unshift({numero,fecha,participantes,temas,compromisos});saveE(e);renderReuniones();closeModal('modal-reunion');
+  ['reu-numero','reu-participantes','reu-temas','reu-compromisos'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('reu-fecha').value='';
+}
+function eliminarReunion(i){const e=getE();e.reuniones.splice(i,1);saveE(e);renderReuniones();}
+
+// ===== CALENDARIO =====
+const EQUIPOS_CAL = ['A','B','C','D'];
+function renderCalendario() {
+  const año=calFecha.getFullYear(), mes=calFecha.getMonth();
+  const meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const diasSem=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  document.getElementById('cal-titulo').textContent=`${meses[mes]} ${año}`;
+  const e=getE(); const eventos=e.eventos||[];
+  const hoy=new Date(); hoy.setHours(0,0,0,0);
+  const primerDia=new Date(año,mes,1).getDay(), diasEnMes=new Date(año,mes+1,0).getDate();
+  let html=`<div class="cal-grid">`;
+  diasSem.forEach(d=>html+=`<div class="cal-day-header">${d}</div>`);
+  for(let i=0;i<primerDia;i++)html+=`<div class="cal-day vacio"></div>`;
+  for(let d=1;d<=diasEnMes;d++){
+    const fechaActual=new Date(año,mes,d); fechaActual.setHours(0,0,0,0);
+    const esHoy=fechaActual.getTime()===hoy.getTime();
+    const fechaStr=`${año}-${String(mes+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const evtsDia=eventos.filter(ev=>ev.fecha===fechaStr);
+    const turnosEquipos=EQUIPOS_CAL.map(eq=>{const t=getTurnoEquipo(eq,fechaActual);return`<span style="font-family:var(--display);font-size:9px;font-weight:700;color:${t.color};line-height:1.2">${eq}:${t.turno}</span>`;}).join(' ');
+    const puntosEvt=evtsDia.map(ev=>{const col={subcomite:'var(--gold)',reunion:'var(--green)',capacitacion:'var(--blue)',vencimiento:'var(--red)',otro:'var(--text-dim)'};return`<div class="cal-dot" style="background:${col[ev.tipo]||'var(--text-dim)'}"></div>`;}).join('');
+    html+=`<div class="cal-day ${esHoy?'hoy':''}" onclick="calClickDia('${fechaStr}')" title="${fechaStr}">
+      <div class="cal-day-num">${d}</div>
+      <div style="margin-top:2px;display:flex;flex-wrap:wrap;gap:1px">${turnosEquipos}</div>${puntosEvt}</div>`;
+  }
+  html+=`</div>`;
+  const equiposHoy=EQUIPOS_CAL.map(eq=>{const t=getTurnoEquipo(eq,hoy);return`<span style="font-family:var(--display);font-weight:700;font-size:13px"><span style="color:${t.color}">${eq}</span><span style="color:var(--text-dim);font-size:11px"> ${t.icono} ${t.label}</span></span>`;}).join('<span style="color:var(--border2);margin:0 6px">·</span>');
+  html+=`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;margin-bottom:12px">
+    <div style="font-family:var(--display);font-size:10px;letter-spacing:0.1em;color:var(--text-dimmer);text-transform:uppercase;margin-bottom:6px">HOY — ${hoy.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'}).toUpperCase()}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">${equiposHoy}</div></div>`;
+  document.getElementById('cal-grid').innerHTML=html;
+  const evtsMes=eventos.filter(ev=>ev.fecha&&ev.fecha.startsWith(`${año}-${String(mes+1).padStart(2,'0')}`)).sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  const listaEl=document.getElementById('cal-eventos-lista');
+  if(!evtsMes.length){listaEl.innerHTML='<div style="padding:16px;text-align:center;color:var(--text-dimmer);font-size:13px">Sin eventos este mes</div>';return;}
+  const etiquetas={subcomite:'📌 Subcomité',reunion:'🤝 Reunión',capacitacion:'📚 Capacitación',vencimiento:'⚠️ Vencimiento',otro:'📅 Otro'};
+  const claseEvt={subcomite:'evt-subcomite',reunion:'evt-reunion',capacitacion:'evt-capacitacion',vencimiento:'evt-vencimiento',otro:'evt-otro'};
+  listaEl.innerHTML=evtsMes.map(ev=>{
+    const partes=ev.fecha.split('-'), dia=partes[2], mesNom=meses[parseInt(partes[1])-1].slice(0,3).toUpperCase(), idxReal=eventos.indexOf(ev);
+    const fechaEv=new Date(parseInt(partes[0]),parseInt(partes[1])-1,parseInt(partes[2]));
+    const rotEv=EQUIPOS_CAL.map(eq=>{const t=getTurnoEquipo(eq,fechaEv);return`<span style="color:${t.color};font-size:10px;font-family:var(--display);font-weight:700">${eq}:${t.turno}</span>`;}).join(' ');
+    return `<div class="evento-row">
+      <div style="text-align:center;min-width:32px"><div class="evento-fecha-badge">${dia}</div><div class="evento-mes-small">${mesNom}</div></div>
+      <div class="evento-body"><div class="evento-titulo">${ev.titulo}</div>${ev.detalle?`<div class="evento-detalle">${ev.detalle}</div>`:''}
+        <div style="margin-top:3px;display:flex;flex-wrap:wrap;gap:4px;align-items:center">
+          <span class="evt-chip ${claseEvt[ev.tipo]||'evt-otro'}">${etiquetas[ev.tipo]||'Otro'}</span>
+          <span style="color:var(--text-dimmer);font-size:10px">${rotEv}</span></div></div>
+      <div onclick="eliminarEvento(${idxReal})" style="color:var(--red);cursor:pointer;font-size:18px;flex-shrink:0;padding:0 4px">×</div></div>`;
+  }).join('');
+}
+function calNavegar(delta){calFecha.setMonth(calFecha.getMonth()+delta);renderCalendario();}
+function calClickDia(fechaStr){document.getElementById('evt-fecha').value=fechaStr;openModal('modal-evento');}
+function guardarEvento(){
+  const fecha=document.getElementById('evt-fecha').value,titulo=document.getElementById('evt-titulo').value.trim(),
+    detalle=document.getElementById('evt-detalle').value.trim(),tipo=document.getElementById('evt-tipo').value;
+  if(!fecha||!titulo){alert('Completá fecha y título');return;}
+  const e=getE();if(!e.eventos)e.eventos=[];e.eventos.push({fecha,titulo,detalle,tipo});saveE(e);renderCalendario();closeModal('modal-evento');
+  document.getElementById('evt-titulo').value='';document.getElementById('evt-detalle').value='';
+}
+function eliminarEvento(i){const e=getE();e.eventos.splice(i,1);saveE(e);renderCalendario();}
+
+// ===== EXPORTAR =====
+function exportarObligaciones(){
+  const e=getE();const cfg=CONFIG[perfil];
+  const meses=['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+  const mes=meses[new Date().getMonth()];
+  let txt=`✅ *OBLIGACIONES DPSE 1 — ${cfg.nombre.toUpperCase()}*\n${mes} ${new Date().getFullYear()}\n\n`;
+  OBLIGACIONES_DEF.forEach(o=>{const actual=o.key==='charla'?(e.charlas||[]).length:(e.obligaciones[o.key]||0);const pct=Math.round(actual/o.meta*100);const icono=pct>=100?'✅':pct>=60?'🟡':'🔴';txt+=`${icono} ${o.label}: ${actual}/${o.meta}\n`;});
+  if((e.charlas||[]).length){txt+=`\n*Charlas registradas:*\n`;e.charlas.forEach((c,i)=>txt+=`  ${i+1}. SAP #${c}\n`);}
+  navigator.clipboard.writeText(txt).then(()=>alert('✓ Copiado')).catch(()=>prompt('Copiá:',txt));
+}
+function exportarReuniones(){
+  const e=getE();const reuniones=e.reuniones||[];if(!reuniones.length){alert('No hay reuniones registradas');return;}
+  const cfg=CONFIG[perfil];let txt=`🤝 *REUNIONES DPSE 1 — ${cfg.nombre.toUpperCase()}*\n\n`;
+  reuniones.forEach((r,i)=>{txt+=`*Reunión ${r.numero||(i+1)}* — ${r.fecha||'Sin fecha'}\n`;if(r.participantes)txt+=`👥 Participantes: ${r.participantes}\n`;if(r.temas)txt+=`💬 Temas: ${r.temas}\n`;if(r.compromisos)txt+=`✅ Compromisos: ${r.compromisos}\n`;txt+='\n';});
+  navigator.clipboard.writeText(txt).then(()=>alert('✓ Copiado')).catch(()=>prompt('Copiá:',txt));
+}
+function exportarTodo(){
+  const e=getE();const cfg=CONFIG[perfil];const turnoLabels={TM:'MAÑANA',TT:'TARDE',TN:'NOCHE'};
+  const now=new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'}).toUpperCase();
+  let txt=`📊 *REPORTE COMPLETO DPSE 1*\n${cfg.nombre.toUpperCase()} · Turno ${turnoLabels[e.turno]||''} · ${now}\n`+'─'.repeat(35)+'\n\n';
+  txt+=`🏭 *DOTACIÓN*\n`;cfg.maquinas.forEach((maq,mi)=>{const asignados=Array.from({length:maq.slots},(_,si)=>e.asignaciones[`${mi}_${si}`]).filter(v=>v);if(asignados.length)txt+=`${maq.icono} ${maq.nombre}: ${asignados.join(', ')}\n`;});
+  if((e.novedades||[]).length){txt+=`\n💬 *NOVEDADES*\n`;e.novedades.forEach(n=>txt+=`[${n.tipo}] ${n.texto}\n`);}
+  txt+=`\n✅ *OBLIGACIONES*\n`;OBLIGACIONES_DEF.forEach(o=>{const actual=o.key==='charla'?(e.charlas||[]).length:(e.obligaciones[o.key]||0);txt+=`${o.label}: ${actual}/${o.meta}\n`;});
+  if((e.reuniones||[]).length){txt+=`\n🤝 *REUNIONES* (${e.reuniones.length})\n`;e.reuniones.forEach((r,i)=>txt+=`${i+1}. ${r.numero||''} — ${r.fecha||''}\n`);}
+  navigator.clipboard.writeText(txt).then(()=>alert('✓ Reporte copiado')).catch(()=>prompt('Copiá:',txt));
+}
+
+// ===== METAL =====
+const LINEAS_METAL=[
+  {key:'lbs1',nombre:'LBS1',area:'MA'},{key:'lgb1',nombre:'LGB1',area:'MA'},
+  {key:'small',nombre:'Línea Small',area:'MA'},{key:'p1',nombre:'Properzi 1',area:'AL'},{key:'p2',nombre:'Properzi 2',area:'AL'},
+];
+function setMetalTurno(t){metalTurno=t;renderMetal();}
+function renderMetal(){
+  const e=getE();const t=metalTurno;if(!e.metal)e.metal={};if(!e.metal[t])e.metal[t]={};
+  ['TM','TT','TN'].forEach(x=>{const b=document.getElementById('mbtn-'+x);if(b)b.className='btn '+(x===t?'btn-gold':'btn-outline');});
+  const turnoLabels={TM:'☀️ Mañana',TT:'🌅 Tarde',TN:'🌙 Noche'};
+  const lbl=document.getElementById('metal-turno-label');if(lbl)lbl.textContent=turnoLabels[t];
+  const descEl=document.getElementById('metal-desc-lista');
+  descEl.innerHTML=LINEAS_METAL.map(l=>{
+    const d1=e.metal[t][l.key+'_d1']||'',d2=e.metal[t][l.key+'_d2']||'',prog=parseFloat(e.metal[t][l.key+'_prog']||0);
+    const total=(parseFloat(d1)||0)+(parseFloat(d2)||0);
+    const diff=prog>0?(total-prog).toFixed(1):null;
+    const diffColor=diff===null?'var(--text-dimmer)':parseFloat(diff)>=0?'var(--green)':'var(--red)';
+    const diffIcon=diff===null?'':parseFloat(diff)>=0?'▲':'▼';
+    return `<div style="padding:10px 14px;border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-family:var(--display);font-weight:700;font-size:13px">${l.nombre}</span>
+        <span style="font-family:var(--display);font-size:11px;font-weight:700;color:${diffColor}">${diff!==null?diffIcon+' '+(parseFloat(diff)>=0?'+':'')+diff+' tn vs prog.':'sin prog.'}</span>
+      </div>
+      <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+        <div style="flex:1;min-width:60px">
+          <div style="font-size:10px;color:var(--text-dimmer);font-family:var(--display);font-weight:700;letter-spacing:0.06em;margin-bottom:3px">PROGRAMADO</div>
+          <div style="display:flex;align-items:center;gap:4px">
+            <input type="number" min="0" step="0.1" value="${e.metal[t][l.key+'_prog']||''}" placeholder="0.0" onchange="setMetal('${l.key}_prog','${t}',this.value)"
+              style="width:74px;background:var(--surface2);border:1px solid var(--blue);border-radius:4px;color:var(--blue);font-family:var(--display);font-weight:700;font-size:15px;text-align:center;padding:5px 6px;">
+            <span style="font-size:11px;color:var(--text-dimmer)">tn</span>
+          </div>
+        </div>
+        <div style="flex:1;min-width:60px">
+          <div style="font-size:10px;color:var(--text-dimmer);font-family:var(--display);font-weight:700;letter-spacing:0.06em;margin-bottom:3px">1° TIEMPO</div>
+          <div style="display:flex;align-items:center;gap:4px">
+            <input type="number" min="0" step="0.1" value="${d1}" placeholder="0.0" onchange="setMetal('${l.key}_d1','${t}',this.value)"
+              style="width:74px;background:var(--surface2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-family:var(--display);font-weight:700;font-size:15px;text-align:center;padding:5px 6px;">
+            <span style="font-size:11px;color:var(--text-dimmer)">tn</span>
+          </div>
+        </div>
+        <div style="flex:1;min-width:60px">
+          <div style="font-size:10px;color:var(--text-dimmer);font-family:var(--display);font-weight:700;letter-spacing:0.06em;margin-bottom:3px">2° TIEMPO</div>
+          <div style="display:flex;align-items:center;gap:4px">
+            <input type="number" min="0" step="0.1" value="${d2}" placeholder="0.0" onchange="setMetal('${l.key}_d2','${t}',this.value)"
+              style="width:74px;background:var(--surface2);border:1px solid var(--border2);border-radius:4px;color:var(--text);font-family:var(--display);font-weight:700;font-size:15px;text-align:center;padding:5px 6px;">
+            <span style="font-size:11px;color:var(--text-dimmer)">tn</span>
+          </div>
+        </div>
+        <div style="flex:1;min-width:60px;text-align:center">
+          <div style="font-size:10px;color:var(--text-dimmer);font-family:var(--display);font-weight:700;letter-spacing:0.06em;margin-bottom:3px">REAL</div>
+          <div style="font-family:var(--display);font-weight:800;font-size:20px;color:${total>0?'var(--green)':'var(--text-dimmer)'}">
+            ${total>0?total.toFixed(1):'—'}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  let totalMA=0,totalAL=0;
+  LINEAS_METAL.forEach(l=>{const tot=(parseFloat(e.metal[t][l.key+'_d1']||0))+(parseFloat(e.metal[t][l.key+'_d2']||0));if(l.area==='MA')totalMA+=tot;else totalAL+=tot;});
+  document.getElementById('metal-stats').innerHTML=`
+    <div class="stat-pill"><div class="stat-pill-num" style="color:var(--orange)">${totalMA.toFixed(1)}</div><div class="stat-pill-label">MA (tn)</div></div>
+    <div class="stat-pill"><div class="stat-pill-num" style="color:var(--blue)">${totalAL.toFixed(1)}</div><div class="stat-pill-label">AL (tn)</div></div>
+    <div class="stat-pill"><div class="stat-pill-num num-green">${(totalMA+totalAL).toFixed(1)}</div><div class="stat-pill-label">Total</div></div>`;
+}
+function setMetal(campo,turno,valor){const e=getE();if(!e.metal)e.metal={};if(!e.metal[turno])e.metal[turno]={};e.metal[turno][campo]=valor;saveE(e);renderMetal();}
+function exportarMetal(){
+  const e=getE();const t=metalTurno;const turnoLabels={TM:'☀️ MAÑANA',TT:'🌅 TARDE',TN:'🌙 NOCHE'};
+  if(!e.metal||!e.metal[t]){alert('Sin datos para este turno');return;}
+  const hoy=new Date();const fecha=`${String(hoy.getDate()).padStart(2,'0')}/${String(hoy.getMonth()+1).padStart(2,'0')}/${hoy.getFullYear()}`;
+  let txt=`🔩 *METAL DESCARGADO — ${turnoLabels[t]} · ${fecha}*\n\n`;let totalMA=0,totalAL=0;
+  LINEAS_METAL.forEach(l=>{
+    const d1=parseFloat(e.metal[t][l.key+'_d1']||0),d2=parseFloat(e.metal[t][l.key+'_d2']||0),tot=d1+d2;
+    const prog=parseFloat(e.metal[t][l.key+'_prog']||0);
+    const diff=prog>0?(tot-prog).toFixed(1):null;
+    if(l.area==='MA')totalMA+=tot;else totalAL+=tot;
+    const diffStr=diff!==null?` (prog: ${prog.toFixed(1)} tn | ${parseFloat(diff)>=0?'+':''}${diff})`:'' ;
+    txt+=`${l.nombre}: ${d1.toFixed(1)} + ${d2.toFixed(1)} = *${tot.toFixed(1)} tn*${diffStr}\n`;
+  });
+  txt+=`\n*TOTAL MA:* ${totalMA.toFixed(1)} tn\n*TOTAL AL:* ${totalAL.toFixed(1)} tn\n*TOTAL DPSE 1:* ${(totalMA+totalAL).toFixed(1)} tn`;
+  navigator.clipboard.writeText(txt).then(()=>alert('✓ Copiado')).catch(()=>prompt('Copiá:',txt));
+}
+
+// ===== MODALES =====
+function openModal(id){try{const el=document.getElementById(id);if(el)el.classList.add('open');}catch(e){}}
+function closeModal(id){try{const el=document.getElementById(id);if(el)el.classList.remove('open');}catch(e){}}
+
+document.addEventListener('DOMContentLoaded',function(){
+  try{
+    renderLoginTurnos();
+    document.querySelectorAll('.modal-overlay').forEach(el=>{el.addEventListener('click',function(ev){if(ev.target===el)el.classList.remove('open');});});
+  }catch(e){}
+});
+window.addEventListener('error',function(e){console.warn('DPSE1 App error:',e.message);return true;});
+</script>
+</body>
+</html>
